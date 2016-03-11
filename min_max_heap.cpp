@@ -70,6 +70,9 @@ private:
     void propagate_up(size_t child);
     void propagate_down(size_t idx);
 
+    void heapify_down(size_t idx);
+    static size_t greater(const std::vector<int>& vec, size_t idx1, size_t idx2);
+
     static size_t smaller(const std::vector<int>& vec, size_t idx1, size_t idx2);
     int pop_tail();
 
@@ -232,17 +235,13 @@ MinMaxHeap::heapify_min(size_t idx)
 void
 MinMaxHeap::balance_up(size_t idx)
 {
-    // show();
-    size_t origin = idx;
-    while (idx != UNDEFINED) {
-        if (idx < m_max.size() && m_max.at(idx) < m_min.at(idx)) {
-            std::swap(m_max.at(idx), m_min.at(idx));
-        }
-
-        this->propagate_up(idx);
-        idx = this->get_parent(idx);
+    if (idx >= m_max.size()) {
+        return;
     }
-    this->propagate_up(origin);
+    if (m_min.at(idx) > m_max.at(idx)) {
+        std::swap(m_min.at(idx), m_max.at(idx));
+        this->heapify_min(idx);
+    }
 }
 
 void
@@ -300,6 +299,63 @@ MinMaxHeap::delete_min()
     this->check_invariants();
 }
 
+void
+MinMaxHeap::delete_max()
+{
+    if (m_max.size() == 1 || (m_max.size() == 0 && m_min.size() == 1)) {
+        this->pop_tail();
+        return;
+    }
+
+    m_max.front() = this->pop_tail();
+    this->heapify_down(0);
+
+    this->check_invariants();
+}
+
+size_t
+MinMaxHeap::greater(const std::vector<int>& vec, size_t idx1, size_t idx2)
+{
+    return vec.at(idx1) > vec.at(idx2) ? idx1 : idx2;
+}
+
+void
+MinMaxHeap::heapify_down(size_t idx)
+{
+    auto children = this->get_children_max(idx);
+    int left  = children.first;
+    int right = children.second;
+
+    if (left == UNDEFINED) {
+        // std::cout << "Balancing up\n";
+        this->balance_up(idx);
+    } else if (right == UNDEFINED) {
+        // std::cout << "Balancing up2\n";
+        if (m_max.at(left) > m_max.at(idx)) {
+            std::swap(m_max.at(left), m_max.at(idx));
+        }
+        this->balance_up(left);
+    } else {
+        if (m_max.at(left) < m_max.at(idx) && m_max.at(right) < m_max.at(idx)) {
+            // std::cout << "Both worse\n";
+            this->balance_up(idx);
+        } else if (m_max.at(left) > m_max.at(idx) && m_max.at(right) > m_max.at(idx)) {
+            // std::cout << "both better\n";
+            size_t greater = this->greater(m_max, left, right);
+            std::swap(m_max.at(greater), m_max.at(idx));
+            this->heapify_down(greater);
+        } else if (m_max.at(left) > m_max.at(idx)) {
+            // std::cout << "left = " << m_max.at(left) << " root = " << m_max.at(idx) << std::endl;
+            std::swap(m_max.at(left), m_max.at(idx));
+            this->heapify_down(left);
+        } else {
+            // std::cout << "right better\n";
+            std::swap(m_max.at(right), m_max.at(idx));
+            this->heapify_down(right);
+        }
+    }
+}
+
 size_t
 MinMaxHeap::smaller(const std::vector<int>& vec, size_t idx1, size_t idx2)
 {
@@ -344,14 +400,14 @@ int main(int argc, char const *argv[])
 {
     srand(time(NULL));
     std::vector<int> test_permutation;
-    for (int i = 0; i < 100; ++i) {
+    for (int i = 0; i < 1010; ++i) {
         test_permutation.push_back(i);
     }
 
     for (int test = 0; test < 1000; ++test) {
-        if (test % 10 == 0) {
-            std::cout << "Test NO " << test << std::endl;
-        }
+        // if (test % 10 == 0) {
+        //     std::cout << "Test NO " << test << std::endl;
+        // }
         std::random_shuffle(test_permutation.begin(), test_permutation.end());
         MinMaxHeap heap;
         for (const auto n : test_permutation) {
@@ -359,8 +415,8 @@ int main(int argc, char const *argv[])
             heap.insert(n);
         }
         for (const auto n : test_permutation) {
-            // std::cout << "Deleting min.. " << "\n";
-            heap.delete_min();
+            // std::cout << "Deleting max.. " << "\n";
+            heap.delete_max();
         }
     }
     return 0;
