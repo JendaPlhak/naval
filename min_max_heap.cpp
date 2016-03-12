@@ -20,65 +20,36 @@ private:
     static constexpr size_t UNDEFINED = std::numeric_limits<size_t>::max();
 
 public:
+    int min() const;
+    int max() const;
+
     void insert(int x);
     void delete_min();
     void delete_max();
 
-    int min() const {
-        assert(m_min.size() + m_max.size() != 0);
-        assert(m_min.size() != 0);
-        return m_min.front();
-    }
-    int max() const {
-        assert(m_min.size() + m_max.size() != 0);
-        if (m_max.size() != 0) {
-            return m_max.front();
-        } else {
-            return m_min.front();
-        }
-    }
-
 private:
-    static size_t get_parent(size_t idx)
-    {
-        if (idx == 0) {
-            return UNDEFINED;
-        }
-        // std::cout << "idx = " <<idx << " parent = " << std::floor((idx - 1) / 2.) << std::endl;
-        return std::floor((idx - 1) / 2.);
-    }
-
+    static size_t get_parent(size_t idx);
     template <class Tail>
-    std::pair<size_t, size_t> get_children(size_t idx) const
-    {
-        const auto& heap = this->get_heap<Tail>();
-        size_t left  = 2 * idx + 1;
-        size_t right = 2 * idx + 2;
-        auto filter = [&] (size_t idx) {
-            return idx < heap.size() ? idx : UNDEFINED;
-        };
-        return std::make_pair(filter(left), filter(right));
-    }
-
-    template <class Tail>
-    void balance_up(size_t idx);
-
-    template <class Tail>
-    void heapify_down(size_t idx);
-
-    template <class Tail>
-    boost::optional<size_t> get_direction(size_t parent) const;
-
-    int pop_tail();
-
-    template <class Tail>
-    void heapify(size_t idx);
+    std::pair<size_t, size_t> get_children(size_t idx) const;
 
     template <class Tail>
     std::vector<int>& get_heap();
     template <class Tail>
     const std::vector<int>& get_heap() const;
 
+    int pop_tail();
+
+    template <class Tail>
+    void heapify_up(size_t idx);
+
+    template <class Tail>
+    void heapify_down(size_t idx);
+    template <class Tail>
+    void balance_up(size_t idx);
+    template <class Tail>
+    boost::optional<size_t> get_direction(size_t parent) const;
+
+//---------------------Debug functions.-----------------------------------------
     void check_invariants() const;
     void assert_heap_invariant() const;
 
@@ -86,48 +57,25 @@ private:
     int linear_min() const;
 
     void show() const;
+//------------------------------------------------------------------------------
 };
 
-template <>
-std::vector<int>&
-MinMaxHeap::get_heap<Min>()
+int
+MinMaxHeap::min() const
 {
-    return m_min;
+    assert(m_min.size() + m_max.size() != 0);
+    assert(m_min.size() != 0);
+    return m_min.front();
 }
 
-template <>
-std::vector<int>&
-MinMaxHeap::get_heap<Max>()
+int
+MinMaxHeap::max() const
 {
-    return m_max;
-}
-
-template <>
-const std::vector<int>&
-MinMaxHeap::get_heap<Min>() const
-{
-    return m_min;
-}
-
-template <>
-const std::vector<int>&
-MinMaxHeap::get_heap<Max>() const
-{
-    return m_max;
-}
-
-template <class Tail>
-void
-MinMaxHeap::heapify(size_t idx)
-{
-    auto& heap = this->get_heap<Tail>();
-    size_t parent = get_parent(idx);
-    while (parent != UNDEFINED) {
-        if (Tail::greater(heap.at(idx), heap.at(parent))) {
-            std::swap(heap.at(parent), heap.at(idx));
-        }
-        idx    = parent;
-        parent = get_parent(idx);
+    assert(m_min.size() + m_max.size() != 0);
+    if (m_max.size() != 0) {
+        return m_max.front();
+    } else {
+        return m_min.front();
     }
 }
 
@@ -147,35 +95,21 @@ MinMaxHeap::insert(int x)
     if (m_min.size() == m_max.size()) {
         idx = m_min.size();
         m_min.push_back(x);
-        this->heapify<Min>(idx);
+        this->heapify_up<Min>(idx);
     } else {
         idx = m_max.size();
         m_max.push_back(x);
 
-        this->heapify<Max>(idx);
+        this->heapify_up<Max>(idx);
         if (m_max.at(idx) < m_min.at(idx)) {
             std::swap(m_max.at(idx), m_min.at(idx));
         }
-        this->heapify<Min>(idx);
-        this->heapify<Max>(idx);
+        this->heapify_up<Min>(idx);
+        this->heapify_up<Max>(idx);
     }
 
     assert(m_min.size() - m_max.size() <= 1);
     this->check_invariants();
-}
-
-int
-MinMaxHeap::pop_tail()
-{
-    int tail;
-    if (m_min.size() == m_max.size()) {
-        tail = m_max.back();
-        m_max.pop_back();
-    } else {
-        tail = m_min.back();
-        m_min.pop_back();
-    }
-    return tail;
 }
 
 void
@@ -213,16 +147,111 @@ MinMaxHeap::delete_max()
     this->check_invariants();
 }
 
+size_t
+MinMaxHeap::get_parent(size_t idx)
+{
+    if (idx == 0) {
+        return UNDEFINED;
+    }
+    return std::floor((idx - 1) / 2.);
+}
+
+template <class Tail>
+std::pair<size_t, size_t>
+MinMaxHeap::get_children(size_t idx) const
+{
+    const auto& heap = this->get_heap<Tail>();
+    size_t left  = 2 * idx + 1;
+    size_t right = 2 * idx + 2;
+    auto filter = [&] (size_t idx) {
+        return idx < heap.size() ? idx : UNDEFINED;
+    };
+    return std::make_pair(filter(left), filter(right));
+}
+
+template <>
+std::vector<int>&
+MinMaxHeap::get_heap<Min>()
+{
+    return m_min;
+}
+
+template <>
+std::vector<int>&
+MinMaxHeap::get_heap<Max>()
+{
+    return m_max;
+}
+
+template <>
+const std::vector<int>&
+MinMaxHeap::get_heap<Min>() const
+{
+    return m_min;
+}
+
+template <>
+const std::vector<int>&
+MinMaxHeap::get_heap<Max>() const
+{
+    return m_max;
+}
+
+int
+MinMaxHeap::pop_tail()
+{
+    int tail;
+    if (m_min.size() == m_max.size()) {
+        tail = m_max.back();
+        m_max.pop_back();
+    } else {
+        tail = m_min.back();
+        m_min.pop_back();
+    }
+    return tail;
+}
+
 template <class Tail>
 void
-MinMaxHeap::balance_up(size_t idx)
+MinMaxHeap::heapify_up(size_t idx)
 {
-    if (idx >= m_max.size()) {
-        return;
+    auto& heap = this->get_heap<Tail>();
+    size_t parent = get_parent(idx);
+    while (parent != UNDEFINED) {
+        if (Tail::greater(heap.at(idx), heap.at(parent))) {
+            std::swap(heap.at(parent), heap.at(idx));
+        }
+        idx    = parent;
+        parent = get_parent(idx);
     }
-    if (m_min.at(idx) > m_max.at(idx)) {
-        std::swap(m_min.at(idx), m_max.at(idx));
-        this->heapify<typename Tail::Opposite>(idx);
+}
+
+template <class Tail>
+void
+MinMaxHeap::heapify_down(size_t idx)
+{
+    auto& heap    = this->get_heap<Tail>();
+    auto children = this->get_children<Tail>(idx);
+    size_t left  = children.first;
+    size_t right = children.second;
+
+    if (left == UNDEFINED) {
+        // std::cout << "Balancing up\n";
+        this->balance_up<Tail>(idx);
+    } else if (right == UNDEFINED) {
+        // std::cout << "Balancing up2\n";
+        if (Tail::greater(heap.at(left), heap.at(idx))) {
+            std::swap(heap.at(left), heap.at(idx));
+        }
+        this->balance_up<Tail>(left);
+    } else {
+        auto dir = this->get_direction<Tail>(idx);
+        if (dir) {
+            std::swap(heap.at(*dir), heap.at(idx));
+            this->heapify_down<Tail>(*dir);
+        } else {
+            this->balance_up<Tail>(idx);
+        }
     }
 }
 
@@ -253,30 +282,14 @@ MinMaxHeap::get_direction(size_t parent) const
 
 template <class Tail>
 void
-MinMaxHeap::heapify_down(size_t idx)
+MinMaxHeap::balance_up(size_t idx)
 {
-    auto& heap    = this->get_heap<Tail>();
-    auto children = this->get_children<Tail>(idx);
-    size_t left  = children.first;
-    size_t right = children.second;
-
-    if (left == UNDEFINED) {
-        // std::cout << "Balancing up\n";
-        this->balance_up<Tail>(idx);
-    } else if (right == UNDEFINED) {
-        // std::cout << "Balancing up2\n";
-        if (Tail::greater(heap.at(left), heap.at(idx))) {
-            std::swap(heap.at(left), heap.at(idx));
-        }
-        this->balance_up<Tail>(left);
-    } else {
-        auto dir = this->get_direction<Tail>(idx);
-        if (dir) {
-            std::swap(heap.at(*dir), heap.at(idx));
-            this->heapify_down<Tail>(*dir);
-        } else {
-            this->balance_up<Tail>(idx);
-        }
+    if (idx >= m_max.size()) {
+        return;
+    }
+    if (m_min.at(idx) > m_max.at(idx)) {
+        std::swap(m_min.at(idx), m_max.at(idx));
+        this->heapify_up<typename Tail::Opposite>(idx);
     }
 }
 
@@ -317,7 +330,7 @@ MinMaxHeap::check_invariants() const
     assert(this->linear_min() == this->min());
 
     for (size_t i = 0; i < m_max.size(); ++i) {
-        assert(m_max.at(i) > m_min.at(i));
+        assert(m_max.at(i) >= m_min.at(i));
     }
 }
 
@@ -330,10 +343,10 @@ MinMaxHeap::assert_heap_invariant() const
         size_t right = children.second;
 
         if (left != UNDEFINED) {
-            assert(m_min.at(idx) < m_min.at(left));
+            assert(m_min.at(idx) <= m_min.at(left));
         }
         if (right != UNDEFINED) {
-            assert(m_min.at(idx) < m_min.at(right));
+            assert(m_min.at(idx) <= m_min.at(right));
         }
     }
 
@@ -343,10 +356,10 @@ MinMaxHeap::assert_heap_invariant() const
         size_t right = children.second;
 
         if (left != UNDEFINED) {
-            assert(m_max.at(idx) > m_max.at(left));
+            assert(m_max.at(idx) >= m_max.at(left));
         }
         if (right != UNDEFINED) {
-            assert(m_max.at(idx) > m_max.at(right));
+            assert(m_max.at(idx) >= m_max.at(right));
         }
     }
 }
@@ -363,12 +376,18 @@ MinMaxHeap::show() const
 int main(int argc, char const *argv[])
 {
     srand(time(NULL));
+    auto random = []() {
+        int max = 50;
+        int min = -max;
+        return min + (rand() % (int)(max - min + 1));
+    };
+
     std::vector<int> test_permutation;
-    for (int i = 0; i < 1010; ++i) {
-        test_permutation.push_back(i);
+    for (int i = 0; i < 999; ++i) {
+        test_permutation.push_back(random());
     }
 
-    for (int test = 0; test < 1000; ++test) {
+    for (int test = 0; test < 10000; ++test) {
         // if (test % 10 == 0) {
         //     std::cout << "Test NO " << test << std::endl;
         // }
