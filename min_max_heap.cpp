@@ -250,7 +250,7 @@ MinMaxHeap::heapify_down(size_t idx)
             std::swap(heap.at(*dir), heap.at(idx));
             this->heapify_down<Tail>(*dir);
         } else {
-            this->balance_up<Tail>(idx);
+            // this->balance_up<Tail>(idx);
         }
     }
 }
@@ -289,7 +289,8 @@ MinMaxHeap::balance_up(size_t idx)
     }
     if (m_min.at(idx) > m_max.at(idx)) {
         std::swap(m_min.at(idx), m_max.at(idx));
-        this->heapify_up<typename Tail::Opposite>(idx);
+        this->heapify_up<Min>(idx);
+        this->heapify_up<Max>(idx);
     }
 }
 
@@ -396,6 +397,8 @@ int main(int argc, char const *argv[])
         for (const auto n : test_permutation) {
             // std::cout << "inserting: " << n << "\n";
             heap.insert(n);
+            heap.insert(n * 49739 % 50);
+            heap.delete_min();
         }
         for (const auto n : test_permutation) {
             (void) n;
