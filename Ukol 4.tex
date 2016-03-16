@@ -1,0 +1,127 @@
+\documentclass[12pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[czech]{babel}
+\usepackage{a4wide}
+\usepackage{amsmath, amsthm, amsfonts, amssymb, graphicx, url, fancyhdr,multicol,enumerate,titling}
+\usepackage{algpseudocode}
+\usepackage[]{algorithm2e}
+\usepackage{listings}
+\theoremstyle{plain}
+\newtheorem{thm}{Theorem} %[section]
+\newtheorem{lemma}[thm]{Lemma}
+
+\lstdefinelanguage{algpseudocode}{
+  keywordstyle=[1]{\keywordstyle},
+  keywordstyle=[2]{\operatorstyle},
+  keywordstyle=[3]{\typestyle},
+  keywordstyle=[4]{\functionstyle},
+  identifierstyle={\identifierstyle},
+  keywords=[1]{%
+    begin,end,%
+    program,procedure,function,subroutine,%
+    while,do,for,to,next,repeat,until,loop,continue,endwhile,endfor,endloop,%
+    if,then,else,endif,%
+    return},
+  literate={-}{$-$}1 {^}{$^\wedge$}1
+           {>}{{$>$\ }}1 {<}{{$<$\ }}1
+           {>=}{{$\geqslant$\ }}1 {<=}{{$\leqslant$\ }}1 
+           {:=}{{$\gets$\ }}1 {!=}{{$\ne$\ }}1 {<>}{{$\ne$\ }}1
+           {->}{{$\;\to\;$}}1
+           {&&}{{\keywordstyle and\ }}4 {{||}}{{\keywordstyle or\ }}3
+           {;}{\hspace{0.2em};}2 {,}{\hspace{0.2em},}2,
+}
+
+\lstset{%
+  language={algpseudocode},
+  columns=fullflexible,
+  numbers=left,
+  numberstyle=\scriptsize,
+}
+
+\newcommand\keywordstyle{\rmfamily\bfseries\upshape}
+\newcommand\operatorstyle{\rmfamily\mdseries\upshape}
+\newcommand\typestyle{\rmfamily\mdseries\upshape}
+\newcommand\functionstyle{\rmfamily\mdseries\scshape}
+
+\newcommand\identifierstyle{\rmfamily\mdseries\itshape}
+
+\newcommand\addkeywords[1]{%
+  \lstset{morekeywords=[1]{#1}}}
+
+\newcommand\addoperators[1]{%
+  \lstset{morekeywords=[2]{#1}}}
+
+\newcommand\addtypes[1]{%
+  \lstset{morekeywords=[3]{#1}}}
+
+\newcommand\addfunctions[1]{%
+  \lstset{morekeywords=[4]{#1}}}
+
+\newcommand{\Z}{\mathbb{Z}}
+\newcommand{\N}{\mathbb{N}}
+
+\begin{document}
+\pagestyle{fancy}                      %Pro větší­ možnosti práce se záhlaví­mi a zápatími
+\fancyhf{}                             %"vyčištění záhlaví a zápatí"                                         
+%\renewcommand{\headheight}{25 pt}                  %
+\addtolength{\topmargin}{-30 pt}                   %
+\setlength{\headsep}{10 pt}                      %
+\fancyhead[L]{{\emph{IV003 - sada 1, příklad 4}}}  %
+\fancyhead[R]{{\emph{Jan Plhák (UČO 408420), Vladimír Sedláček (UČO 408178)}}}                  % Nastavení­ pro titulní­ stranu
+%\fancyfoot[L]{Školní rok 2009/2010}                %
+%\renewcommand{\footrulewidth}{0.8 pt}              %
+\renewcommand{\headrulewidth}{1 pt}                %               %
+
+\addfunctions{INSERT}
+\addfunctions{DELETE_MIN}
+\addfunctions{DELETE_MAX}
+\addfunctions{HEAPIFY}
+
+Použijeme binární minimovou haldu $A$ a binární maximovou haldu $B$. Tyto haldy budeme reprezentovat dvěma poli $[A_0,A_1,\dots,A_k]$, resp. $[B_0,B_1,\dots,B_l]$ stadardním způsobem, tj. tak, aby platilo $$A_i\leq A_{2i+1}, A_i\leq A_{2i+2}, B_j\geq B_{2j+1}, B_j\geq B_{2j+2}$$ pro všechna $i\in \N_0$ a $j\in \N_0$, pro která je alespoň jeden z příslušných prvků definován. Navíc budeme požadovat, aby po zavolání každé z funkcí INSERT, DELETE\_MIN, DELETE\_MAX platilo $l\leq k \leq l+1$ a zároveň $A_i\leq B_i$ pro všechna $i\in \{0,1,\dots,l\}$.\\
+
+Funkce definujeme následovně:
+
+\begin{lstlisting}
+function INSERT(x,T)
+  r := a mod b
+  while r != 0 do
+    a := b
+    b := r
+    r := a mod b
+  end while
+  return HEAPIFY b
+end function
+\end{lstlisting}
+
+\begin{lstlisting}
+function DELETE_MIN(T) 
+  r := a mod b
+  while r != 0 do
+    a := b
+    b := r
+    r := a mod b
+  end while
+  return b
+end function
+\end{lstlisting}
+
+\begin{lstlisting}
+function DELETE_MAX(T)
+  r := a mod b
+  while r != 0 do
+    a := b
+    b := r
+    r := a mod b
+  end while
+  return b
+end function
+\end{lstlisting}
+
+\begin{lemma} INSERT je korektní a zachovává všechny invarianty.
+\end{lemma}
+\begin{proof}
+Korektnost plyne z toho, že jsme do jedné z hald přidali nový prvek a po konečně mnoha vý.
+\end{proof}
+
+\end{document}

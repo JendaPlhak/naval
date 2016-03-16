@@ -1,0 +1,128 @@
+\documentclass[12pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[czech]{babel}
+\usepackage{a4wide}
+\usepackage{amsmath, amsthm, amsfonts, amssymb, graphicx, url, fancyhdr,multicol,enumerate,titling}
+\usepackage{algpseudocode}
+\usepackage[]{algorithm2e}
+\usepackage{listings}
+\theoremstyle{plain}
+\newtheorem{thm}{Theorem} %[section]
+\newtheorem{lemma}[thm]{Lemma}
+
+\lstdefinelanguage{algpseudocode}{
+  keywordstyle=[1]{\keywordstyle},
+  keywordstyle=[2]{\operatorstyle},
+  keywordstyle=[3]{\typestyle},
+  keywordstyle=[4]{\functionstyle},
+  identifierstyle={\identifierstyle},
+  keywords=[1]{%
+    begin,end,%
+    program,procedure,function,subroutine,%
+    while,do,for,to,next,repeat,until,loop,continue,endwhile,endfor,endloop,%
+    if,then,else,endif,%
+    return},
+  literate={-}{$-$}1 {^}{$^\wedge$}1
+           {>}{{$>$\ }}1 {<}{{$<$\ }}1
+           {>=}{{$\geqslant$\ }}1 {<=}{{$\leqslant$\ }}1 
+           {:=}{{$\gets$\ }}1 {!=}{{$\ne$\ }}1 {<>}{{$\ne$\ }}1
+           {->}{{$\;\to\;$}}1
+           {&&}{{\keywordstyle and\ }}4 {{||}}{{\keywordstyle or\ }}3
+           {;}{\hspace{0.2em};}2 {,}{\hspace{0.2em},}2,
+}
+
+\lstset{%
+  language={algpseudocode},
+  columns=fullflexible,
+  numbers=left,
+  numberstyle=\scriptsize,
+}
+
+\newcommand\keywordstyle{\rmfamily\bfseries\upshape}
+\newcommand\operatorstyle{\rmfamily\mdseries\upshape}
+\newcommand\typestyle{\rmfamily\mdseries\upshape}
+\newcommand\functionstyle{\rmfamily\mdseries\scshape}
+
+\newcommand\identifierstyle{\rmfamily\mdseries\itshape}
+
+\newcommand\addkeywords[1]{%
+  \lstset{morekeywords=[1]{#1}}}
+
+\newcommand\addoperators[1]{%
+  \lstset{morekeywords=[2]{#1}}}
+
+\newcommand\addtypes[1]{%
+  \lstset{morekeywords=[3]{#1}}}
+
+\newcommand\addfunctions[1]{%
+  \lstset{morekeywords=[4]{#1}}}
+
+\newcommand{\Z}{\mathbb{Z}}
+\newcommand{\N}{\mathbb{N}}
+
+\begin{document}
+\pagestyle{fancy}                      %Pro větší­ možnosti práce se záhlaví­mi a zápatími
+\fancyhf{}                             %"vyčištění záhlaví a zápatí"                                         
+%\renewcommand{\headheight}{25 pt}                  %
+\addtolength{\topmargin}{-30 pt}                   %
+\setlength{\headsep}{10 pt}                      %
+\fancyhead[L]{{\emph{IV003 - sada 1, příklad 5}}}  %
+\fancyhead[R]{{\emph{Jan Plhák (UČO 408420), Vladimír Sedláček (UČO 408178)}}}                  % Nastavení­ pro titulní­ stranu
+%\fancyfoot[L]{Školní rok 2009/2010}                %
+%\renewcommand{\footrulewidth}{0.8 pt}              %
+\renewcommand{\headrulewidth}{1 pt}                %               %
+
+\addfunctions{NEJVYSSI\_VPRAVO(l)}
+\addfunctions{NEJVYSSI\_NAD(l)}
+
+Datová struktura se bude skládat ze dvou polí $X,Y$, přičemž prvky $X$ budou uspořádané čtveřice $(a,b,c,d)$, kde $(c,d)$ je vždy nejvyšší bod napravo od $(a,b)$, tj. $$(c,d)=\sup\{(x,y)\in S | x\geq a\}, $$
+přičemž supremum bereme vzhledem k uspořádání $\preceq_Y\subseteq S\times S$ definovaného vztahem 
+\begin{equation}\label{1}
+(s,t)\preceq_Y (u,v) \Longleftrightarrow (t<v \vee (t=v \wedge s\leq u)).
+\end{equation}
+Navíc budeme požadovat, aby posloupnost prvních složek $X$ byla neklesající.
+
+Analogicky, prvky $Y$ budou uspořádané čtveřice $(a,b,c,d)$, kde $(c,d)$ je vždy nejpravější bod nad $(a,b)$, tj. $$(c,d)=\sup\{(x,y)\in S | y\geq b\},$$
+přičemž supremum bereme vzhledem k uspořádání $\preceq_X\subseteq S\times S$ definovaného vztahem
+\begin{equation}\label{2}
+(s,t)\preceq_X (u,v) \Longleftrightarrow (s<u \vee (s=u \wedge t\leq v)).
+\end{equation}
+Navíc budeme požadovat, aby posloupnost druhých složek $Y$ byla neklesající.
+
+Je jasné, že paměťová složitost obou těchto polí dohromady bude $2\cdot 2|S|=4n\in\Theta(n)$. Na časovou složitost jejich vytvoření přitom v zadání nebyly kladeny žádné požadavky, proto nejprve naivně vytvoříme příslušné čtveřice tak, že pro každý bod $(a,b)\in S$ projdeme všechny prvky $S$ a vybereme příslušný bod $(c,d)$ splňující podmínku \eqref{1}, resp. \eqref{2} (pro pole $X$, resp. $Y$). Následně vzniklá pole čtveřic $(a,b,c,d)$ vzestupně uspořádáme podle prvních, resp. druhých složek.
+
+Funkce definujeme následovně:
+
+\begin{lstlisting}
+function NEJVYSSI_VPRAVO(l)
+  r := a mod b
+  while r != 0 do
+    a := b
+    b := r
+    r := a mod b
+  end while
+  return HEAPIFY b
+end function
+\end{lstlisting}
+
+\begin{lstlisting}
+function NEJVYSSI_VPRAVO(l)
+  r := a mod b
+  while r != 0 do
+    a := b
+    b := r
+    r := a mod b
+  end while
+  return b
+end function
+\end{lstlisting}
+
+
+\begin{lemma} NEJVYSSI\_VPRAVO(l) je korektní a zachovává všechny invarianty.
+\end{lemma}
+\begin{proof}
+Korektnost plyne z toho, že jsme do jedné z hald přidali nový prvek a po konečně mnoha vý.
+\end{proof}
+
+\end{document}
