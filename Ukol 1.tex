@@ -1,0 +1,121 @@
+\documentclass[12pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[czech]{babel}
+\usepackage{a4wide}
+\usepackage{amsmath, amsthm, amsfonts, amssymb, graphicx, url, fancyhdr,multicol,enumerate,titling}
+\usepackage{algpseudocode}
+\usepackage[]{algorithm2e}
+\usepackage{listings}
+\theoremstyle{plain}
+\newtheorem{thm}{Theorem} %[section]
+\newtheorem{lemma}[thm]{Lemma}
+
+\lstdefinelanguage{algpseudocode}{
+  keywordstyle=[1]{\keywordstyle},
+  keywordstyle=[2]{\operatorstyle},
+  keywordstyle=[3]{\typestyle},
+  keywordstyle=[4]{\functionstyle},
+  identifierstyle={\identifierstyle},
+  keywords=[1]{%
+    begin,end,%
+    program,procedure,function,subroutine,%
+    while,do,for,to,next,repeat,until,loop,continue,endwhile,endfor,endloop,%
+    if,then,else,endif,%
+    return},
+  literate={-}{$-$}1 {^}{$^\wedge$}1
+           {>}{{$>$\ }}1 {<}{{$<$\ }}1
+           {>=}{{$\geqslant$\ }}1 {<=}{{$\leqslant$\ }}1
+           {:=}{{$\gets$\ }}1 {!=}{{$\ne$\ }}1 {<>}{{$\ne$\ }}1
+           {->}{{$\;\to\;$}}1
+           {&&}{{\keywordstyle and\ }}4 {{||}}{{\keywordstyle or\ }}3
+           {;}{\hspace{0.2em};}2 {,}{\hspace{0.2em},}2,
+}
+
+\lstset{%
+  language={algpseudocode},
+  columns=fullflexible,
+  numbers=left,
+  numberstyle=\scriptsize,
+}
+
+\newcommand\keywordstyle{\rmfamily\bfseries\upshape}
+\newcommand\operatorstyle{\rmfamily\mdseries\upshape}
+\newcommand\typestyle{\rmfamily\mdseries\upshape}
+\newcommand\functionstyle{\rmfamily\mdseries\scshape}
+
+\newcommand\identifierstyle{\rmfamily\mdseries\itshape}
+
+\newcommand\addkeywords[1]{%
+  \lstset{morekeywords=[1]{#1}}}
+
+\newcommand\addoperators[1]{%
+  \lstset{morekeywords=[2]{#1}}}
+
+\newcommand\addtypes[1]{%
+  \lstset{morekeywords=[3]{#1}}}
+
+\newcommand\addfunctions[1]{%
+  \lstset{morekeywords=[4]{#1}}}
+
+\newcommand{\Z}{\mathbb{Z}}
+\newcommand{\N}{\mathbb{N}}
+
+\begin{document}
+\pagestyle{fancy}                      %Pro větší­ možnosti práce se záhlaví­mi a zápatími
+\fancyhf{}                             %"vyčištění záhlaví a zápatí"
+%\renewcommand{\headheight}{25 pt}                  %
+\addtolength{\topmargin}{-30 pt}                   %
+\setlength{\headsep}{10 pt}                      %
+\fancyhead[L]{{\emph{IV003 - sada 1, příklad 1}}}  %
+\fancyhead[R]{{\emph{Jan Plhák (UČO 408420), Vladimír Sedláček (UČO 408178)}}}                  % Nastavení­ pro titulní­ stranu
+%\fancyfoot[L]{Školní rok 2009/2010}                %
+%\renewcommand{\footrulewidth}{0.8 pt}              %
+\renewcommand{\headrulewidth}{1 pt}                %               %
+
+\addfunctions{kSORT}
+\addfunctions{HEAPSORT}
+
+Algoritmus řešící zadaný problém budeme realizovat funkcí kSORT($X,k$), kde $X$ je pole obsahující $n$ zadaných čísel (s indexy $0,\dots,n-1$) a $k$ je parametr ze zadání. Výstupem je pak pole $X$ se správně setřízenými prvky. Také využijeme standardní implementaci funkce HEAPSORT, o které víme, že její asymptotická složitost je nejhůře $|Z|\log |Z|$, kde $Z$ je její vstupní pole. Dále předpokládejme, že výraz HEAPSORT($X$[low,up]) značí setřízení prvků $X[low],X[low+1],\dots,X[up-1]$ \uv{in place}.
+
+\begin{lstlisting}[mathescape]
+function kSORT($X,k$)
+  if $k=0$ then return $X$
+  if $k\geq n-1$ then 
+    HEAPSORT($X$[0,n])
+    return X
+  len :=2k+1
+  low :=0
+  while(low <|X|)
+    up :=$\min$(low+len,$|X|$)
+    HEAPSORT($X$[low,up])
+    low :=low+len
+    
+  low :=k+1
+  while(low <|X|)
+    up :=$\min$(low+2k,$|X|$)
+    HEAPSORT($X$[low,up])
+    low :=low+len
+  return X
+\end{lstlisting}
+
+Nejprve ukážeme korektnost. Označme $Y$ pole, které vznikne uspořádáním vstupního pole $X$. Potřebujeme tedy ukázat, že kSORT($X,k$)=$Y$. Na řádku 2 ošetříme případ, kdy $k=0$, což vlastně znamená, že vstupní pole už je uspořádáno a můžeme skončit. Na řádcích 3-5 ošetříme případ, kdy $k\geq n-1$; v tomto případě je zadání stejné, jako kdyby podmínka s parametrem $k$ neexistovala, a jedná se o standardní úlohu na třízení pole, na kterou jednoduše použijeme HEAPSORT. Dále tyto případy neuvažujeme.\\
+
+ Nyní si pole $X$ rozdělíme na $\lceil\frac{n}{2k+1}\rceil$ disjunktních úseků tak, že $i$-tý z nich se skládá z prvků $$X[(i-1)(2k+1)],\dots, X[i(2k+1)-1]$$ pro $1\leq i\leq \lfloor\frac{n}{2k+1}\rfloor$ a z prvků $$X[(i-1)(2k+1)],\dots, X[n-1]$$ pro $i=\lceil\frac{n}{2k+1}\rceil$. Každý z těchto úseků poté setřídíme pomocí HEAPSORTu.\\ %Dále se podívejme na všechny prvky $X[k+j(2k+1)]$ pro $0\leq j \leq \lfloor \frac{n-1}{2k+1}-k \rfloor$ (jedná se o \uv{prostřední} prvky setřízených úseků), budeme jim říkat pivoti.\\
+
+Nyní indukcí dokážeme, že po $i$-té iteraci while cyklu z řádku 14 bude platit $X[j]=Y[j]$ pro všechna $0\leq j \leq \min(k+i(2k+1),n)$. (Využijeme přitom, že už proběhl cyklus z řádků 8-11.)
+\begin{itemize}
+\item Bázový krok $i=0$:\\
+Pro spor předpokládejme, že existuje $l\in\{0,1,\dots,k\}$ takové, že $X[l]\neq Y[l]$. Protože žádný z prvků $X[0],\dots,X[l-1]$ nepřevyšuje $X[l]$, nemůže být prvek $X[l]$ ve výsledném úspořádání na nižším indexu než $l$. Musí tedy existovat prvek $X[m]$ s vlastností $X[m]\leq X[l]$, přičemž zřejmě musí platit $m\geq 2k+1$ (jinak bychom dostali spor se správným uspořádáním prvního úseku). Prvek $X[m]$ proto ve vstupním poli nemohl být v prvním úseku, tj. jeho index musel být alespoň $2k+1$. Přitom ale $$2k+1-l\geq 2k+1-k=k+1>k,$$ což je spor, neboť prvek $X[m]$ by se na začátku lišil od své cílové pozice o více než $k$. 
+\item Mějme $i\geq 1$ a předpokládejme, že tvrzení platí pro $i'< i$. Pro spor předpokládejme, že existuje $l\in\{0,1,\dots,\min(k+i(2k+1),n)\}$ takové, že $X[l]\neq Y[l]$, přitom z bázového kroku $l>k+(i-1)(2k+1)$. Protože žádný z prvků $X[0],\dots,X[l-1]$ nepřevyšuje $X[l]$ (buď už jsou v cílovém uspořádání, nebo patří do naposledy třízeného úseku), nemůže být prvek $X[l]$ ve výsledném úspořádání na nižším indexu než $l$. Musí tedy existovat prvek $X[m]$ s vlastností $X[m]\leq X[l]$, přičemž zřejmě musí platit $m\geq k+i(2k+1)$ (jinak bychom dostali spor se správným uspořádáním naposledy třízeného úseku). Prvek $X[m]$ proto ve vstupním poli musel být v alespoň $(i+2)$-tém úseku, tj. jeho index musel být alespoň $(i+1)(2k+1)$. Přitom ale $$(i+1)(2k+1)-l\geq (i+1)(2k+1)-(k+i(2k+1))=k+1>k,$$ což je spor, neboť prvek $X[m]$ by se na začátku lišil od své cílové pozice o více než $k$. 
+\end{itemize}
+
+Nyní určíme složitost kSORTu. V případě $k=0$ je zjevně konstatní a v případě $k\geq n-1$ bude stejná jako složitost HEAPSORTU na celém $X$, tj. $n\log n\in\mathcal{O}(n\log k)$. Dále předpokládejme $1\leq k<n-1$. Časová složitost prvního cyklu (řádky 8-11) je zřejmě v nejhorším případě (můžeme zde BÚNO předpokládat, že $2k+1\mid n$) rovna
+$$\frac{n}{2k+1}\cdot ((2k+1)\log(2k+1))=n\log (2k+1)$$
+a časová složitost prvního cyklu (řádky 14-17) je zřejmě v nejhorším případě
+\begin{equation*}
+\left(\frac{n}{2k+1}-2\right)\cdot (2k\log(2k))+k\log(k)\leq \left(\frac{n}{2k+1}\right)\cdot ((2k+1)\log(2k+1))\leq n\log(2k+1).
+\end{equation*}
+
+Proto je celková časová složitost kSORTu v $\mathcal{O}(2n\log(2k+1))=\mathcal{O}(n\log(k))$, jak bylo požadováno.
+\end{document}
