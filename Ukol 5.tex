@@ -25,7 +25,7 @@
     return},
   literate={-}{$-$}1 {^}{$^\wedge$}1
            {>}{{$>$\ }}1 {<}{{$<$\ }}1
-           {>=}{{$\geqslant$\ }}1 {<=}{{$\leqslant$\ }}1 
+           {>=}{{$\geqslant$\ }}1 {<=}{{$\leqslant$\ }}1
            {:=}{{$\gets$\ }}1 {!=}{{$\ne$\ }}1 {<>}{{$\ne$\ }}1
            {->}{{$\;\to\;$}}1
            {&&}{{\keywordstyle and\ }}4 {{||}}{{\keywordstyle or\ }}3
@@ -63,7 +63,7 @@
 
 \begin{document}
 \pagestyle{fancy}                      %Pro větší­ možnosti práce se záhlaví­mi a zápatími
-\fancyhf{}                             %"vyčištění záhlaví a zápatí"                                         
+\fancyhf{}                             %"vyčištění záhlaví a zápatí"
 %\renewcommand{\headheight}{25 pt}                  %
 \addtolength{\topmargin}{-30 pt}                   %
 \setlength{\headsep}{10 pt}                      %
@@ -73,11 +73,12 @@
 %\renewcommand{\footrulewidth}{0.8 pt}              %
 \renewcommand{\headrulewidth}{1 pt}                %               %
 
-\addfunctions{NEJVYSSI\_VPRAVO(l)}
-\addfunctions{NEJVYSSI\_NAD(l)}
+\addfunctions{NEJVYSSI\_VPRAVO}
+\addfunctions{NEJVYSSI\_NAD}
+\addfunctions{UPPER\_BOUND}
 
 Datová struktura se bude skládat ze dvou polí $X,Y$, přičemž prvky $X$ budou uspořádané čtveřice $(a,b,c,d)$, kde $(c,d)$ je vždy nejvyšší bod napravo od $(a,b)$, tj. $$(c,d)=\sup\{(x,y)\in S | x\geq a\}, $$
-přičemž supremum bereme vzhledem k uspořádání $\preceq_Y\subseteq S\times S$ definovaného vztahem 
+přičemž supremum bereme vzhledem k uspořádání $\preceq_Y\subseteq S\times S$ definovaného vztahem
 \begin{equation}\label{1}
 (s,t)\preceq_Y (u,v) \Longleftrightarrow (t<v \vee (t=v \wedge s\leq u)).
 \end{equation}
@@ -88,41 +89,44 @@ přičemž supremum bereme vzhledem k uspořádání $\preceq_X\subseteq S\times
 \begin{equation}\label{2}
 (s,t)\preceq_X (u,v) \Longleftrightarrow (s<u \vee (s=u \wedge t\leq v)).
 \end{equation}
-Navíc budeme požadovat, aby posloupnost druhých složek $Y$ byla neklesající.
+Navíc budeme požadovat, aby posloupnost druhých složek $Y$ byla neklesající.\\
+%, tj. aby $Y$ bylo uspořádané v uspořádání $\sqsubseteq_Y$, kde $\sqsubseteq_Y\subseteq %Y\times Y$ je definováno vztahem
+%$$(s,t,u,v)\sqsubseteq_Y (s',t',u',v'),$$ práv2 km
 
-Je jasné, že paměťová složitost obou těchto polí dohromady bude $2\cdot 2|S|=4n\in\Theta(n)$. Na časovou složitost jejich vytvoření přitom v zadání nebyly kladeny žádné požadavky, proto nejprve naivně vytvoříme příslušné čtveřice tak, že pro každý bod $(a,b)\in S$ projdeme všechny prvky $S$ a vybereme příslušný bod $(c,d)$ splňující podmínku \eqref{1}, resp. \eqref{2} (pro pole $X$, resp. $Y$). Následně vzniklá pole čtveřic $(a,b,c,d)$ vzestupně uspořádáme podle prvních, resp. druhých složek.
+Je jasné, že paměťová složitost obou těchto polí dohromady bude $2\cdot 2|S|=4n\in\Theta(n)$. Na časovou složitost jejich vytvoření přitom v zadání nebyly kladeny žádné požadavky, proto nejprve naivně vytvoříme příslušné čtveřice tak, že pro každý bod $(a,b)\in S$ projdeme všechny prvky $S$ a vybereme příslušný bod $(c,d)$ splňující podmínku \eqref{1}, resp. \eqref{2} (pro pole $X$, resp. $Y$). Následně vzniklá pole čtveřic $(a,b,c,d)$ vzestupně uspořádáme podle prvních, resp. druhých složek, tj. zvolíme si lineární uspořádání $\sqsubseteq_X$, resp. $\sqsubseteq_Y$, která respektují tuto vlastnost.\\
 
-Funkce definujeme následovně:
+Funkce definujeme následovně:\\
 
-\begin{lstlisting}
+UPPER\_BOUND($X,l,\preceq$) je standardní funkce na binární vyhledávání v uspořádaném poli $(X,\preceq)$, která vrátí nejmenší prvek $x\in X$ s vlastností $l\preceq x$. Protože její standardní implementace je založena na půlení intervalů, je její složitost v $\mathcal{O}(\log |X|)$.
+
+\begin{lstlisting}[mathescape]
 function NEJVYSSI_VPRAVO(l)
-  r := a mod b
-  while r != 0 do
-    a := b
-    b := r
-    r := a mod b
-  end while
-  return HEAPIFY b
-end function
+  (a,b,c,d) := UPPER_BOUND(X,l,$\sqsubseteq_X$) 
+  return (c,d)
 \end{lstlisting}
 
-\begin{lstlisting}
-function NEJVYSSI_VPRAVO(l)
-  r := a mod b
-  while r != 0 do
-    a := b
-    b := r
-    r := a mod b
-  end while
-  return b
-end function
+\begin{lstlisting}[mathescape]
+function NEJPRAVEJSI_NAD(l)
+  (a,b,c,d) := UPPER_BOUND(Y,l,$\sqsubseteq_Y$) 
+  return (c,d)
 \end{lstlisting}
 
+Je jasné, že obě tyto funkce budou mít stejnou asymptotickou složitost jako UPPER\_BOUND, tj. obě budou v $\mathcal{O}(\log |X|)=\mathcal{O}(\log |S|)=\mathcal{O}(\log n)=\mathcal{O}(\log |Y|)$.\\
 
-\begin{lemma} NEJVYSSI\_VPRAVO(l) je korektní a zachovává všechny invarianty.
-\end{lemma}
-\begin{proof}
-Korektnost plyne z toho, že jsme do jedné z hald přidali nový prvek a po konečně mnoha vý.
-\end{proof}
-
+Konečnost výpočtu u obou funkcí plyne z konečnosti výpočtu UPPER\_BOUND. Nyní ukážeme, že NEJVYSSI\_VPRAVO je korektní. Plyne to z rovnosti množin
+\begin{equation*}
+\begin{split}
+\{(a,b)\in S | a\geq l &\text{ a mezi všemi body,
+jejichž $x$-ová souřadnice je alespoň $l$},\\ 
+&\text{má bod $(a,b)$ největší $y$-ovou souřadnici }\}
+\end{split}
+\end{equation*}
+\begin{equation*}
+\begin{split}
+=\{(a,b)\in S | a\geq m &\text{ a mezi všemi body,
+jejichž $x$-ová souřadnice je alespoň $m$},\\
+ &\text{má bod $(a,b)$ největší $y$-ovou souřadnici }\},
+\end{split}
+\end{equation*}
+kde $m$ je první prvek čtveřice UPPER\_BOUND(X,l,$\sqsubseteq_X$) (díky korektnosti UPPER\_BOUND totiž víme, že neexistuje žádný bod $(u,v)\in S$ takový, že $l\leq u<m$). Argumentace pro NEJPRAVEJSI\_NAD je zcela analogická, takže jsme hotovi.
 \end{document}
