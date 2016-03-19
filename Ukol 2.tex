@@ -85,23 +85,7 @@ Dále ukážeme, že pro každé $k\in\{0,1,\dots,n\}$ je pravda, že po $k$-té
 \forall i\in \N, 1\leq i\leq k: A[i]\in S \Leftrightarrow (\forall j\in\N, i<j\leq k: A[i]>A[j]).
 \end{equation}
 
-To je zřejmě pravda pro $k=0$, resp. $k=1$ (v těchto případech je zásobník prázdný, resp. je v něm právě prvek $A[1]$). Stačí tedy ukázat, že z pravdivosti tohoto faktu pro $k$ vyplývá i jeho pravdivost pro $k+1$ (potom totiž bude platit i pro $n$ a formule výše nám zajistí korektnost celého algoritmu). Nejprve poznamenejme, že z indukčního předpokladu plyne, že prvky zásobníku tvoří klesající posloupnost (ode dna po vrchol). Z toho plyne, že while cyklus na řádcích 3-5 odstraní ze zásobníku všechny mrakodrapy, které nevidí přes prvek $A[k+1]$. Předpokládajme, že jsme odstranili alespoň jeden prvek ze zásobníku a poslední odstraněný mrakodrap ze zásobníku byl $A[l], 1\leq l\leq k$. Pak z předchozího vyplývá platnost následujících podmínek:
-\begin{equation} \label{bagr}
-\forall j\in\N, l< j < k + 1, A[j]\in S_k: A[j] \leq A[k+1],
-\end{equation}
-
-\begin{equation} \label{simple]}
-A[l] < A[k+1].
-\end{equation}
-
-
-\eqref{bagr} můžeme ještě zobecnit:
-\begin{equation} \label{bagr2}
-\forall j\in\N, 1 \leq j < k + 1: A[j] \not\in S \Rightarrow (\exists m \in \N, j < m \leq k + 1:  A[j] \leq A[m]).
-\end{equation}
-Tuto implikaci ukážeme následujícím způsobem: mějme $ A[j] \not\in S$ z předpokladu implikace. Pak protože $ j < k + 1 $, museli jsme prvek $ A[j] $ v předchozím kroku $ j $ přidat do zásobníku. Jediný způsob jakým jsme tento prvek mohli ze zásobníku zase odebrat je pokud v nějakém z pozdějších kroků (označme jej $ m $) platilo $ A[m] \geq A[TOP(S)]$ a zároveň $ TOP(S) = j $. $ m $ je tedy hledaný index a implikace je dokázána.\\
-
-
+To je zřejmě pravda pro $k=0$, resp. $k=1$ (v těchto případech je zásobník prázdný, resp. je v něm právě prvek $A[1]$). Stačí tedy ukázat, že z pravdivosti tohoto faktu pro $k$ vyplývá i jeho pravdivost pro $k+1$ (potom totiž bude platit i pro $n$ a formule výše nám zajistí korektnost celého algoritmu). Nejprve poznamenejme, že z indukčního předpokladu plyne, že prvky zásobníku tvoří klesající posloupnost (ode dna po vrchol). Z toho plyne, že while cyklus na řádcích 3-5 odstraní ze zásobníku všechny mrakodrapy, které nevidí přes prvek $A[k+1]$. 
 
 Nyní vyšetříme platnost ekvivalence \eqref{invariant} po skončení kroku $k+1$  v následujících případech:
 
@@ -114,7 +98,7 @@ Obměnou implikace dostáváme:
 \begin{equation} \label{alter}
 A[i]\not\in S \Rightarrow (\exists j\in\N, i<j\leq k + 1: A[i] \leq A[j]).
 \end{equation}
-To ovšem odpovídá výše dokázanému tvrzení \eqref{bagr2} a volbou $ j = m $ je tato implikace dokázána.
+Tuto implikaci ukážeme následujícím způsobem: mějme $ A[i] \not\in S$ z předpokladu implikace. Pak protože $ i < k + 1 $, museli jsme prvek $ A[i] $ v předchozím kroku $ i $ přidat do zásobníku (řádek 8). Jediný způsob jakým jsme tento prvek mohli ze zásobníku zase odebrat je, že v nějakém z pozdějších kroků (označme jej $ j $) platilo $ A[j] \geq A[TOP(S)]$ a zároveň $ TOP(S) = i $. $ j $ je tedy hledaný index a implikace je dokázána.
 
 \item $1 \leq i < k + 1$ implikace "$ \Rightarrow $":\\
 Nechť naopak $ A[i] \in S $. Pak ovšem také $ A[i] \in S_k $ a z indukčního předpokladu plyne, že 
