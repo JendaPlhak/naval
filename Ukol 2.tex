@@ -1,0 +1,133 @@
+\documentclass[12pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[czech]{babel}
+\usepackage{a4wide}
+\usepackage{amsmath, amsthm, amsfonts, amssymb, graphicx, url, fancyhdr,multicol,enumerate,titling}
+\usepackage{algpseudocode}
+\usepackage[]{algorithm2e}
+\usepackage{listings}
+\theoremstyle{plain}
+\newtheorem{thm}{Theorem} %[section]
+\newtheorem{lemma}[thm]{Lemma}
+
+\lstdefinelanguage{algpseudocode}{
+  keywordstyle=[1]{\keywordstyle},
+  keywordstyle=[2]{\operatorstyle},
+  keywordstyle=[3]{\typestyle},
+  keywordstyle=[4]{\functionstyle},
+  identifierstyle={\identifierstyle},
+  keywords=[1]{%
+    begin,end,%
+    program,procedure,function,subroutine,%
+    while,do,for,to,next,repeat,until,loop,continue,endwhile,endfor,endloop,%
+    if,then,else,endif,%
+    return},
+  literate={-}{$-$}1 {^}{$^\wedge$}1
+           {>}{{$>$\ }}1 {<}{{$<$\ }}1
+           {>=}{{$\geqslant$\ }}1 {<=}{{$\leqslant$\ }}1
+           {:=}{{$\gets$\ }}1 {!=}{{$\ne$\ }}1 {<>}{{$\ne$\ }}1
+           {->}{{$\;\to\;$}}1
+           {&&}{{\keywordstyle and\ }}4 {{||}}{{\keywordstyle or\ }}3
+           {;}{\hspace{0.2em};}2 {,}{\hspace{0.2em},}2,
+}
+
+\lstset{%
+  language={algpseudocode},
+  columns=fullflexible,
+  numbers=left,
+  numberstyle=\scriptsize,
+}
+
+\newcommand\keywordstyle{\rmfamily\bfseries\upshape}
+\newcommand\operatorstyle{\rmfamily\mdseries\upshape}
+\newcommand\typestyle{\rmfamily\mdseries\upshape}
+\newcommand\functionstyle{\rmfamily\mdseries\scshape}
+
+\newcommand\identifierstyle{\rmfamily\mdseries\itshape}
+
+\newcommand\addkeywords[1]{%
+  \lstset{morekeywords=[1]{#1}}}
+
+\newcommand\addoperators[1]{%
+  \lstset{morekeywords=[2]{#1}}}
+
+\newcommand\addtypes[1]{%
+  \lstset{morekeywords=[3]{#1}}}
+
+\newcommand\addfunctions[1]{%
+  \lstset{morekeywords=[4]{#1}}}
+
+\newcommand{\Z}{\mathbb{Z}}
+\newcommand{\N}{\mathbb{N}}
+
+\begin{document}
+\pagestyle{fancy}                      %Pro větší­ možnosti práce se záhlaví­mi a zápatími
+\fancyhf{}                             %"vyčištění záhlaví a zápatí"
+%\renewcommand{\headheight}{25 pt}                  %
+\addtolength{\topmargin}{-30 pt}                   %
+\setlength{\headsep}{10 pt}                      %
+\fancyhead[L]{{\emph{IV003 - sada 1, příklad 2}}}  %
+\fancyhead[R]{{\emph{Jan Plhák (UČO 408420), Vladimír Sedláček (UČO 408178)}}}                  % Nastavení­ pro titulní­ stranu
+%\fancyfoot[L]{Školní rok 2009/2010}                %
+%\renewcommand{\footrulewidth}{0.8 pt}              %
+\renewcommand{\headrulewidth}{1 pt}                %               %
+
+\addfunctions{VYHLED}
+\addfunctions{PUSH}
+\addfunctions{POP}
+
+Nejprve ukážeme, že je VYHLED korektní. Konečnost výpočtu plyne z faktu, že PUSH se provede právě $n$-krát, tudíž POP nejvýše $n$-krát.\\
+
+Dále ukážeme, že pro každé $k\in\{0,1,\dots,n\}$ je pravda, že po $k$-té iteraci cyklu for platí tvrzení
+
+\begin{equation} \label{invariant}
+\forall i\in \N, 1\leq i\leq k: A[i]\in S \Leftrightarrow (\forall j\in\N, i<j\leq k: A[i]>A[j]).
+\end{equation}
+
+To je zřejmě pravda pro $k=0$, resp. $k=1$ (v těchto případech je zásobník prázdný, resp. je v něm právě prvek $A[1]$). Stačí tedy ukázat, že z pravdivosti tohoto faktu pro $k$ vyplývá i jeho pravdivost pro $k+1$ (potom totiž bude platit i pro $n$ a formule výše nám zajistí korektnost celého algoritmu). Nejprve poznamenejme, že z indukčního předpokladu plyne, že prvky zásobníku tvoří klesající posloupnost (ode dna po vrchol). Z toho plyne, že while cyklus na řádcích 3-5 odstraní ze zásobníku všechny mrakodrapy, které nevidí přes prvek $A[k+1]$. Předpokládajme, že jsme odstranili alespoň jeden prvek ze zásobníku a poslední odstraněný mrakodrap ze zásobníku byl $A[l], 1\leq l\leq k$. Pak z předchozího vyplývá platnost následujících podmínek:
+\begin{equation} \label{bagr}
+\forall j\in\N, l< j < k + 1, A[j]\in S_k: A[j] \leq A[k+1],
+\end{equation}
+
+\begin{equation} \label{simple]}
+A[l] < A[k+1].
+\end{equation}
+
+
+\eqref{bagr} můžeme ještě zobecnit:
+\begin{equation} \label{bagr2}
+\forall j\in\N, 1 \leq j < k + 1: A[j] \not\in S \Rightarrow (\exists m \in \N, j < m \leq k + 1:  A[j] \leq A[m]).
+\end{equation}
+Tuto implikaci ukážeme následujícím způsobem: mějme $ A[j] \not\in S$ z předpokladu implikace. Pak protože $ j < k + 1 $, museli jsme prvek $ A[j] $ v předchozím kroku $ j $ přidat do zásobníku. Jediný způsob jakým jsme tento prvek mohli ze zásobníku zase odebrat je pokud v nějakém z pozdějších kroků (označme jej $ m $) platilo $ A[m] \geq A[TOP(S)]$ a zároveň $ TOP(S) = j $. $ m $ je tedy hledaný index a implikace je dokázána.\\
+
+
+
+Nyní vyšetříme platnost ekvivalence \eqref{invariant} po skončení kroku $k+1$  v následujících případech:
+
+\begin{itemize}
+\item $i = k + 1$:\\
+Podmínka je triviálně splněna neboť prvek $A[k+1]$ byl do $S$ přidán na řádku 8 v aktuálním kroku $k+1$.
+
+\item $1 \leq i < k + 1$ implikace "$ \Leftarrow $":\\
+Obměnou implikace dostáváme: 
+\begin{equation} \label{alter}
+A[i]\not\in S \Rightarrow (\exists j\in\N, i<j\leq k + 1: A[i] \leq A[j]).
+\end{equation}
+To ovšem odpovídá výše dokázanému tvrzení \eqref{bagr2} a volbou $ j = m $ je tato implikace dokázána.
+
+\item $1 \leq i < k + 1$ implikace "$ \Rightarrow $":\\
+Nechť naopak $ A[i] \in S $. Pak ovšem také $ A[i] \in S_k $ a z indukčního předpokladu plyne, že 
+\begin{equation}
+A[i]\in S \Rightarrow (\forall j\in\N, i < j < k + 1: A[i]>A[j]).
+\end{equation}
+Zbývá ukázat nerovnost $ A[i] > A[k + 1] $. Ta ale platí díky tomu, že mrakodrapy v zásobníku tvoří klesající posloupnost a speciálně $ A[TOP(S)] > A[k + 1] $ (jinak bychom dostali spor s podmínkou while cyklu a toho, že cyklus skončil.). Celkem $ A[i] \geq A[TOP(S)] > A[k + 1] $ a důkaz je hotov.
+
+\end{itemize}
+
+
+Nyní provedeme analýzu složitosti funkce VYHLED pomocí kreditové metody. Operaci PUSH přiřadíme dva kredity, operaci POP žádný (skutečná cena obou dvou je přitom~1). Potom je zřejmé, že počet kreditů na účtu bude v každém okamžiku roven počtu prvků v zásobníku $S$, zejména tedy bude nezáporný. Přitom během volání funkce výhled se operace PUSH provede právě $n$-krát, tudíž celkový počet vytvořených kreditů je $2n$. Proto je celková složitost v nejhorším případě rovna $2n\in\mathcal{O}(n)$.\\
+
+Naopak, na každý mrakodrap se určitě musíme alespoň jednou podívat, protože mezi výškami mrakodrapů není a priori žádný vztah. Mrakodrapů je však alespoň $n$, takže asymptotická složitost VYHLEDu je v $\Omega(n)$. Celkově je tedy asymptotická složitost VYHLEDu v $\Theta(n)$.
+
+\end{document}
