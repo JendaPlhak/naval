@@ -79,13 +79,13 @@
 
 Nejprve ukážeme, že je VYHLED korektní. Konečnost výpočtu plyne z faktu, že PUSH se provede právě $n$-krát, tudíž POP nejvýše $n$-krát.\\
 
-Dále ukážeme, že pro každé $k\in\{0,1,\dots,n\}$ je pravda, že po $k$-té iteraci cyklu for platí tvrzení
+V následujícím textu budeme často hovořit o "prvcích zásobníku", přičemž tímto obratem budeme mínit mrakodrap, který je tímto prvkem - indexem jednoznačně určen. Podobně budeme používat "mrakodrap ze zásobníku". Nyní ukážeme, že pro každé $k\in\{0,1,\dots,n\}$ je pravda, že po $k$-té iteraci cyklu for platí tvrzení
 
 \begin{equation} \label{invariant}
 \forall i\in \N, 1\leq i\leq k: A[i]\in S \Leftrightarrow (\forall j\in\N, i<j\leq k: A[i]>A[j]).
 \end{equation}
 
-To je zřejmě pravda pro $k=0$, resp. $k=1$ (v těchto případech je zásobník prázdný, resp. je v něm právě prvek $A[1]$). Stačí tedy ukázat, že z pravdivosti tohoto faktu pro $k$ vyplývá i jeho pravdivost pro $k+1$ (potom totiž bude platit i pro $n$ a formule výše nám zajistí korektnost celého algoritmu). Nejprve poznamenejme, že z indukčního předpokladu plyne, že prvky zásobníku tvoří klesající posloupnost (ode dna po vrchol). Z toho plyne, že while cyklus na řádcích 3-5 odstraní ze zásobníku všechny mrakodrapy, které nevidí přes prvek $A[k+1]$. 
+To je zřejmě pravda pro $k=0$, resp. $k=1$ (v těchto případech je zásobník prázdný, resp. je v něm právě prvek $A[1]$). Stačí tedy ukázat, že z pravdivosti tohoto faktu pro $k$ vyplývá i jeho pravdivost pro $k+1$ (potom totiž bude platit i pro $n$ a formule výše nám zajistí korektnost celého algoritmu). Nejprve poznamenejme, že z indukčního předpokladu plyne, že prvky zásobníku (mrakodrapy, na které prvky ukazují) tvoří klesající posloupnost (ode dna po vrchol). Z toho plyne, že while cyklus na řádcích 3-5 odstraní ze zásobníku všechny mrakodrapy, které nevidí přes prvek $A[k+1]$. 
 
 Nyní vyšetříme platnost ekvivalence \eqref{invariant} po skončení kroku $k+1$  v následujících případech:
 
