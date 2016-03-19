@@ -77,20 +77,47 @@
 \addfunctions{DELETE_MIN}
 \addfunctions{DELETE_MAX}
 \addfunctions{HEAPIFY}
+\addfunctions{heapify_up}
 
-Použijeme binární minimovou haldu $A$ a binární maximovou haldu $B$. Tyto haldy budeme reprezentovat dvěma poli $[A_0,A_1,\dots,A_k]$, resp. $[B_0,B_1,\dots,B_l]$ stadardním způsobem, tj. tak, aby platilo $$A_i\leq A_{2i+1}, A_i\leq A_{2i+2}, B_j\geq B_{2j+1}, B_j\geq B_{2j+2}$$ pro všechna $i\in \N_0$ a $j\in \N_0$, pro která je alespoň jeden z příslušných prvků definován. Navíc budeme požadovat, aby po zavolání každé z funkcí INSERT, DELETE\_MIN, DELETE\_MAX platilo $l\leq k \leq l+1$ a zároveň $A_i\leq B_i$ pro všechna $i\in \{0,1,\dots,l\}$.\\
-
+Použijeme binární minimovou haldu $A$ a binární maximovou haldu $B$. Tyto haldy budeme reprezentovat dvěma poli $[A_0,A_1,\dots,A_k]$, resp. $[B_0,B_1,\dots,B_l]$ stadardním způsobem, tj. tak, aby platilo $$A_i\leq A_{2i+1}, A_i\leq A_{2i+2}, B_j\geq B_{2j+1}, B_j\geq B_{2j+2}$$ pro všechna $i\in \N_0$ a $j\in \N_0$, pro která je alespoň jeden z příslušných prvků definován. Navíc budeme požadovat, aby po zavolání každé z funkcí INSERT, DELETE\_MIN, DELETE\_MAX platilo $l\leq k \leq l+1$ a zároveň $A_i\leq B_i$ pro všechna $i\in \{0,1,\dots,l\}$. (Iniciálně to triviálně platí.)\\
 Funkce definujeme následovně:
 
-\begin{lstlisting}
+\begin{lstlisting}[mathescape]
+function min(T)
+  if |A| = 0
+    return Error
+  else:
+    return $A_0$
+end function
+\end{lstlisting}
+
+\begin{lstlisting}[mathescape]
+function max(T)
+  if $|A| + |B| = 0$
+    return Error
+  else if $|B| = 0$
+    return $ A_0 $
+  else 
+    return $B_0$
+end function
+\end{lstlisting}
+
+\begin{lstlisting}[mathescape]
 function INSERT(x,T)
-  r := a mod b
-  while r != 0 do
-    a := b
-    b := r
-    r := a mod b
-  end while
-  return HEAPIFY b
+  if $|B| \not= 0 \wedge max(T) < x$
+    swap($B_0$, x)
+    return INSERT(x,T)
+  
+  if |A| = |B|
+    append(x, A)
+    heapify_up(k+1, A)
+  else
+    append(x, B)
+    heapify_up(l+1, B)
+    if $A_{l+1} > B_{l+1} $
+      swap($A_{l+1}, B_{l+1}$)
+      heapify_up(l+1, A)
+      heapify_up(l+1, B)
 end function
 \end{lstlisting}
 

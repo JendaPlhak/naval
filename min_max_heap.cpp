@@ -89,7 +89,7 @@ MinMaxHeap::insert(int x)
         m_max.front() = x;
         this->insert(old_max);
         return;
-    }
+    }// append
 
     size_t idx;
     if (m_min.size() == m_max.size()) {
@@ -103,9 +103,10 @@ MinMaxHeap::insert(int x)
         this->heapify_up<Max>(idx);
         if (m_max.at(idx) < m_min.at(idx)) {
             std::swap(m_max.at(idx), m_min.at(idx));
+            this->heapify_up<Min>(idx);
+            this->heapify_up<Max>(idx);
         }
-        this->heapify_up<Min>(idx);
-        this->heapify_up<Max>(idx);
+
     }
 
     assert(m_min.size() - m_max.size() <= 1);
@@ -321,8 +322,8 @@ MinMaxHeap::linear_min() const
 void
 MinMaxHeap::check_invariants() const
 {
-    show();
-    std::cout << std::endl;
+    // show();
+    // std::cout << std::endl;
     assert(m_min.size() == m_max.size() || m_min.size() - m_max.size() == 1);
 
     assert_heap_invariant();
@@ -384,29 +385,29 @@ int main(int argc, char const *argv[])
     };
 
     std::vector<int> test_permutation;
-    for (int i = 0; i < 10; ++i) {
+    for (int i = 0; i < 987; ++i) {
         test_permutation.push_back(random());
     }
 
-    for (int test = 0; test < 1; ++test) {
+    for (int test = 0; test < 10000; ++test) {
         // if (test % 10 == 0) {
         //     std::cout << "Test NO " << test << std::endl;
         // }
         std::random_shuffle(test_permutation.begin(), test_permutation.end());
         MinMaxHeap heap;
         for (const auto n : test_permutation) {
-            std::cout << "inserting: " << n << "\n";
+            // std::cout << "inserting: " << n << "\n";
             heap.insert(n);
-            std::cout << "inserting: " << n * 49739 % 50 << "\n";
+            // std::cout << "inserting: " << n * 49739 % 50 << "\n";
             heap.insert(n * 49739 % 50);
-            std::cout << "Deleting min.. " << "\n";
+            // std::cout << "Deleting min.. " << "\n";
             heap.delete_min();
         }
         for (const auto n : test_permutation) {
             (void) n;
-            std::cout << "Deleting min.. " << "\n";
+            // std::cout << "Deleting min.. " << "\n";
             heap.delete_min();
-            std::cout << "Deleting max.. " << "\n";
+            // std::cout << "Deleting max.. " << "\n";
             heap.delete_max();
         }
     }
