@@ -137,7 +137,7 @@ MinMaxHeap::delete_max()
     if (m_min.size() == 0) {
         return;
     }
-    if (m_max.size() == 1 || m_min.size() == 1) {
+    if (m_min.size() == 1) {
         this->pop_tail();
         return;
     }

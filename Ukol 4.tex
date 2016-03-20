@@ -127,7 +127,7 @@ end function
 function DELETE_MAX(T) 
   if $A = \emptyset$
     return Error
-  if $ |A| = 1 \vee |B| = 1 $
+  if $ |A| = 1 $
     return pop_tail(T)
   max := $ B_0 $
   $ B_0 $ := pop_tail(T) 
@@ -258,6 +258,34 @@ Pak pokud je to třeba, opravíme aktuální prvek abych zajistili, že A bude h
 Protože pro každou dvojici prvků na cestě v $ A $ a $ B $ po aktuální uzel máme dobře definovaný alespoň jeden pár odpovídajících si potomků, plyne z \eqref{bagr} platnost podmínky 2 a také všech ostatních podmínek invariantu. 
 
 \end{itemize}
+\end{proof}
+
+\begin{lemma} DELETE\_MAX je korektní a zachovává všechny invarianty.
+\end{lemma}
+\begin{proof}
+Argumentace pro DELETE\_MAX je zcela analogická. Funkce se prakticky liší
+jen na řádku 4. Rozvažme tedy, kdy může být podmínka pravdivá. Buďto tedy $ |A| = 1 $. V tom případě je buď $ |B| = 0 $, pak pop\_tail odstraní jediný prvek z A, což musí být zároveň maximum, nebo $ |B| = 1 $ a v tom případě pop\_tail odstraní jediný prvek z B (jinak by bylo porušeno vyvážení), což je zároveň maximum díky invariantu. Čímž, jak už bylo řečeno, díky analogické argumentaci jako pro DELETE\_MIN je tvrzení dokázáno.
+
+\end{proof}
+
+\begin{lemma} Asymptotická složitost INSERT náleží do $\mathcal{O}(\log n)$.
+\end{lemma}
+\begin{proof}
+V případě, že není splněna podmínka na řádku 2, je to nejhorší, co může nastat trojnásobné volání heapify\_up. Avšak díky tomu, že A i B jsou binární haldy, bude jejich hloubka nejvýše $ \log(n) $ plus konstanta. A protože složitost heapify\_up odpovídá hloubce haldy, bude celková složitost řádků 6-15 $ (3\log(n) + c) \in \mathcal{O}(\log n)$ , kde $ c $ je vhodná konstanta. \\
+Pokud by platila podmínka na řádku 2, provedeme v konstantním čase swap a pak zavoláme znovu INSERT, přičemž pro toto volání nemůže být podmínka 2 splněna, a tak bude i v tomto případě asymptotická složitost náležet do $\mathcal{O}(\log n)$.
+
+\end{proof}
+
+\begin{lemma} Asymptotická složitost DELETE\_MIN náleží do $\mathcal{O}(\log n)$.
+\end{lemma}
+\begin{proof}
+Snadno se nahlédne, že složitost této metody je určena až na konstantu voláním heapify\_down. Ta se následně rekurzivně zavolá až na konstantu tolikrát, kolik je úrovní v haldně A. Opět díky tomu, že A je binární halda víme, že těchto úrovní bude nejvýše $ \log n $. Nakonec v nejhorším případě zavoláme balance\_up, která bude opět díky tomu, že A i B jsou binární haldy, mít asymptotickou složitost v $\mathcal{O}(\log n)$. Tím je tvrzení dokázáno.
+\end{proof}
+
+\begin{lemma} Asymptotická složitost DELETE\_MAX náleží do $\mathcal{O}(\log n)$.
+\end{lemma}
+\begin{proof}
+Analogicky jako pro DELETE\_MIN. 
 \end{proof}
 
 \end{document}
