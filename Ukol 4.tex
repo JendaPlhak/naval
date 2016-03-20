@@ -79,8 +79,91 @@
 \addfunctions{HEAPIFY}
 \addfunctions{heapify_up}
 
-Použijeme binární minimovou haldu $A$ a binární maximovou haldu $B$. Tyto haldy budeme reprezentovat dvěma poli $[A_0,A_1,\dots,A_k]$, resp. $[B_0,B_1,\dots,B_l]$ stadardním způsobem, tj. tak, aby platilo $$A_i\leq A_{2i+1}, A_i\leq A_{2i+2}, B_j\geq B_{2j+1}, B_j\geq B_{2j+2}$$ pro všechna $i\in \N_0$ a $j\in \N_0$, pro která je alespoň jeden z příslušných prvků definován. Navíc budeme požadovat, aby po zavolání každé z funkcí INSERT, DELETE\_MIN, DELETE\_MAX platilo $l\leq k \leq l+1$ a zároveň $A_i\leq B_i$ pro všechna $i\in \{0,1,\dots,l\}$. (Iniciálně to triviálně platí.)\\
+Použijeme binární minimovou haldu $A$ a binární maximovou haldu $B$. Tyto haldy budeme reprezentovat dvěma poli $[A_0,A_1,\dots,A_k]$, resp. $[B_0,B_1,\dots,B_l]$ stadardním způsobem, tj. tak, aby platilo $$A_i\leq A_{2i+1}, A_i\leq A_{2i+2}, B_j\geq B_{2j+1}, B_j\geq B_{2j+2}$$ pro všechna $i\in \N_0$ a $j\in \N_0$, pro která je alespoň jeden z příslušných prvků definován. Navíc budeme požadovat, aby po zavolání každé z funkcí INSERT, DELETE\_MIN, DELETE\_MAX platilo (invariant):
+\begin{enumerate}
+\item $l\leq k \leq l+1$
+\item $A_i\leq B_i$ pro všechna $i\in \{0,1,\dots,l\}$. (Iniciálně to triviálně platí.)
+\item Funkce min resp. max korektně vrací min. resp. max prvek struktury. 
+\item A je minimová halda
+\item B je maximová halda
+\end{enumerate}
+
+Dále budeme používat standardně definovanou funkci heapify\_up, která zajistí probublání prvku haldou odspoda nahoru vzhledem k uspořádání minimové hlady A nebo maximové hlady B. \\
 Funkce definujeme následovně:
+
+\begin{lstlisting}[mathescape]
+function INSERT(x,T)
+  if $B \not= \emptyset \wedge max(T) < x$
+    swap($B_0$, x)
+    return INSERT(x,T)
+  
+  if |A| = |B|
+    append(x, A)
+    heapify_up(k+1, A)
+  else
+    append(x, B)
+    heapify_up(l+1, B)
+    if $A_{l+1} > B_{l+1} $
+      swap($A_{l+1}, B_{l+1}$)
+      heapify_up(l+1, A)
+      heapify_up(l+1, B)
+end function
+\end{lstlisting}
+
+\begin{lstlisting}[mathescape]
+function DELETE_MIN(T) 
+  if $A = \emptyset$
+    return Error
+  if $ |A| = 1 \wedge |B| = 0 $
+    return pop_tail(T)
+  min := $ A_0 $
+  $ A_0 $ := pop_tail(T) 
+  heapify_down($(A, <)$, 0)
+  return min
+end function
+\end{lstlisting}
+
+\begin{lstlisting}[mathescape]
+function DELETE_MAX(T) 
+  if $A = \emptyset$
+    return Error
+  if $ |A| = 1 \vee |B| = 1 $
+    return pop_tail(T)
+  max := $ B_0 $
+  $ B_0 $ := pop_tail(T) 
+  heapify_down($(B, >)$, 0)
+  return max
+end function
+\end{lstlisting}
+
+\begin{lstlisting}[mathescape]
+function heapify_down($(Heap, \succ), i$)
+  (left, right) = children($Heap_{i}$)
+  if (left = Nil)
+    balance_up(idx)
+  else if (right = Nil)
+    if ($Heap_{left} \succ Heap_i $)
+      swap($Heap_{left}, Heap_i$)
+    balance_up(left)
+  else 
+    X := $\{  d \mid d \in \{Heap_{left}, Heap_{right}\} \wedge d \succ Heap_{i} \} $
+    if ($X \not = \emptyset$) 
+      dir := index of greater element (with respect $\text{to} \succ$) from X.
+      swap($ Heap_{dir}, Heap_i$)
+      heapif	y_down($(Heap, \succ), dir$)
+end function
+\end{lstlisting}
+
+\begin{lstlisting}[mathescape]
+function balance_up(i)
+  if $i \geq |B|$
+    return
+  if $A_i > B_i$
+    swap($A_i, B_i$)
+    heapify_up(i, A)
+    heapify_up(i, B)
+end function
+\end{lstlisting}
 
 \begin{lstlisting}[mathescape]
 function min(T)
@@ -103,52 +186,78 @@ end function
 \end{lstlisting}
 
 \begin{lstlisting}[mathescape]
-function INSERT(x,T)
-  if $|B| \not= 0 \wedge max(T) < x$
-    swap($B_0$, x)
-    return INSERT(x,T)
-  
-  if |A| = |B|
-    append(x, A)
-    heapify_up(k+1, A)
-  else
-    append(x, B)
-    heapify_up(l+1, B)
-    if $A_{l+1} > B_{l+1} $
-      swap($A_{l+1}, B_{l+1}$)
-      heapify_up(l+1, A)
-      heapify_up(l+1, B)
-end function
-\end{lstlisting}
-
-\begin{lstlisting}
-function DELETE_MIN(T) 
-  r := a mod b
-  while r != 0 do
-    a := b
-    b := r
-    r := a mod b
-  end while
-  return b
-end function
-\end{lstlisting}
-
-\begin{lstlisting}
-function DELETE_MAX(T)
-  r := a mod b
-  while r != 0 do
-    a := b
-    b := r
-    r := a mod b
-  end while
-  return b
+function pop_tail(T)
+  if $|A| = |B|$
+    return pop_back(B)
+  else 
+    return pop_back(A)
 end function
 \end{lstlisting}
 
 \begin{lemma} INSERT je korektní a zachovává všechny invarianty.
 \end{lemma}
 \begin{proof}
-Korektnost plyne z toho, že jsme do jedné z hald přidali nový prvek a po konečně mnoha vý.
+Neboť funkce INSERT neobsahuje žádné cykly ani rekurzivní volání a o funkci heapify\_up můžeme předpokládat, že je korektní, je zřejmé, že výpočet bude vždy konečný.\\
+
+Pokud dojde ke splnění podmínky na řádku 2, je z invariantu zřejmé, že se jedná o nové maximum a jeho vložením na pozici $ B_0 $ zůstane invariant zachován. Při rekurzivním volání již podmínka na řádku 2 nemůže být splněna a korektnost této větve je závislá na korektnosti řádků 6-15. \\
+
+Nechť tedy není splněna podmínka na řádku 2. Vyšetříme dva případy:
+\begin{itemize}
+\item $|A| = |B| $:\\
+Po provedení řádků 7 a 8 řejmě zůstane v platnosti podmínka 1 a také 5 protože haldu B nijak nemodifikujeme. Aplikace funkce heapify\_up zajistí, že A bude po přidání prvku x opět minimovou haldou, tedy splnění podmínky 4. Pruchod funkce haldou A na řádku 8 jednoznačně určuje cestu haldou. Tuto cestu označme [$A_0, \dots, A_{i-1}, x, A_i, \dots, A_k $] a odpovídající cestu [$B_0, \dots, B_{i-1}, B_i, B_{i + 1}, \dots, B_k $]. Pak zřejmě $ A_j \leq B_j \forall j \in \N, 0 \leq j < i $, neboť tyto prvky nebyly změněny. Dále $ x \leq A_i \leq B_i $ a analogicky pro všechny prvky pod $ x $, až na $ A_k $, pro které ale splnění podmínky 2 v nové haldě nepožadujeme (nemá odpovídající protějšek v B). Tím je dokázána platnost podmínky 2. Konečně neplatnost podmínky na řádku 2 zajišťuje, že max bude korektní a z vlastností heapify\_up pro minimovou haldu vyplývá, že min také.
+
+
+\item $|A| = |B| + 1 $ (z podmínky 1 plyne, že jiná možnost není):\\
+Řádky 10-11 zajistí splnění podmínek 1, 4, 5 a 2 až na $A_{l+1} \leq B_{l+1} $ díky analogické argumentaci jako v předchozím případě. Pokud tedy platí $A_{l+1} \leq B_{l+1} $, jsme hotovi. V opačném případě prvky prohodíme, čímž zajistíme splnění podmínky 2, ale potenciálně pokazíme 4 a 5. Tento problém opravíme na řádcích 14-15. \\
+
+Zbývá si rozmyslet, že jsme tím nepokazili podmínku 2. To ale můžeme udělat stejně jako v předchozím bodě, avšak navíc je třeba nejprve odargumentovat poslední prvek (nejspodnější) posloupnosti určené funkcí heapify\_up, neboť nyní po vložení platí $ |A| = |B| $. Označme $A' $ a $B'$ posloupnosti určené průchodem funkce heapify\_up a $i_l $ index posledního prvku těchto posloupností. Pak musela nastat jedna z následujících možností:
+
+\begin{itemize}
+\item $A'_{i_l} = B_{i_l} \wedge B'_{i_l} = A_{i_l} $: \\
+V tomto případě neměly řádky 14 a 15 žádný efekt a podmínka 2 tak triviálně platí.
+
+\item $A'_{i_l} = B_{i_l} \wedge B'_{i_l} = B_{i_{l - 1}} $: \\
+řádek 14 nic, ale v 15 došlo k propagaci. Pak ale z invariantu (5) $ B_{i_l} \leq B_{i_{l - 1}} $.
+\item $A'_{i_l} = A_{i_{l - 1}} \wedge B'_{i_l} = A_{i_l} $: \\
+řádek 15 nic, ale v 14 došlo k propagaci. Analogicky jako v předchozím případě $ A_{i_{l - 1}} \leq A_{i_l} $.
+
+\item $A'_{i_l} = A_{i_{l - 1}} \wedge B'_{i_l} = B_{i_{l - 1}} $: \\
+řádek 14 propagace, 15 propagace. Platnost 2 pro $A'$ a $B'$ triviálně z platnosti 2 pro $A$ a $B$.
+
+\end{itemize}
+
+Konečně z vlastností minimové a maximové haldy a neplatnosti podmínky 2 vyplývá platnost podmínky 3.
+\end{itemize}
+\end{proof}
+
+\begin{lemma} DELETE\_MIN je korektní a zachovává všechny invarianty.
+\end{lemma}
+\begin{proof}
+Snadno se nahlédne, že rekurze bude konečná, neboť v každém kroku sestupujeme o jednu úroveň haldy níže a úrovní máme pouze konečně mnoho. V nejhorším případě navíc ještě voláme funkci balance\_up, která je z konečnosti heapify\_up také konečná. Celkově je proto delete\_min konečná.
+
+Zřejmě pokud $ |A| = 0 $, pak také $ |B| = 0 $ a nemáme co mazat, tedy ani vrátit,
+tedy skončíme s chybou. Pokud je splněna podmínka řádku 4, pak mámě ve struktuře
+jen jeden prvek a ten pop\_tail korektně odstraní a vrátí. Dále díky podmínce 1 je
+každý prvek haldy $B $ větší roven nějakému prvku z $ A $ a proto minimum se nutně musí nacházet právě v $ A $. Protože $ A $ je navíc minimová halda, bude minimum právě $ A_0 $. \\
+
+Použití funkce pop\_tail nám zajistí, že struktura zůstane vyvážená - podmínka 1. Rekurzivním voláním heapify\_down zajistíme, že A bude opět minimovou haldou.
+Dá se nahlédnout, že heapify\_down vlastně jen
+posune nějakou cestu $[A'_{i_0}, \dots, A'_{i_m}]$ o jednu úroveň nahoru. Pak ale pro odpovídající cestu $[B_{i_0}, \dots, B_{i_m}]$ platí 
+\begin{equation}\label{bagr}
+ B_{i_j} \geq B_{i_{j+1}} \geq A'_{i_{j + 1}} = A_{i_j}.
+\end{equation}
+Toto má smysl vždy když je definováno $ B_{i_{j+1}} $ a $ A'_{i_{j + 1}} $. 
+
+Rekurze se zastaví v jednom ze tří případů:
+\begin{itemize}
+\item left = Nil (V tomto případě nemá aktuální uzel žádné potomky - ploché dno):  \\
+Nyní z výše uvedené argumentace plyne, že podmínka 2 je splněna pro všechny prvky, až na ten aktuální, který nemá potomky. Pak buďto aktuální prvek z A nemá protějšek v B a jsme hotovi. Jinak v případě, že je podmínka 2 pro tyto dva prvky porušena, tak ji prohozením prvků opravíme a pomocí stejné argumentace jako v případě insertu se ukáže, že dvojí zavolání heapify\_up zajistí splění zbývajících podmínek.
+\item right = Nil (Jeden potomek - schod):  \\
+Pak pokud je to třeba, opravíme aktuální prvek abych zajistili, že A bude halda. Následně použitím balance\_up zajistíme splnění všech ostatních podmínek jako v předchozím případě.
+\item $ X = \emptyset $ (potomci jsou větší než aktuální uzel): \\
+Protože pro každou dvojici prvků na cestě v $ A $ a $ B $ po aktuální uzel máme dobře definovaný alespoň jeden pár odpovídajících si potomků, plyne z \eqref{bagr} platnost podmínky 2 a také všech ostatních podmínek invariantu. 
+
+\end{itemize}
 \end{proof}
 
 \end{document}
