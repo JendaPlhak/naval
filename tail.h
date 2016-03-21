@@ -1,9 +1,11 @@
 #pragma once
 
+template <typename T>
 struct Max;
 
+template <typename T>
 struct Min {
-    using Opposite = Max;
+    using Opposite = Max<T>;
     template <class ForwardIterator>
     static ForwardIterator
     extreme_element(ForwardIterator first, ForwardIterator last)
@@ -11,14 +13,15 @@ struct Min {
         return std::min_element(first, last);
     }
     static bool
-    greater(int lhs, int rhs)
+    greater(T lhs, T rhs)
     {
         return lhs < rhs;
     }
 };
 
+template <typename T>
 struct Max {
-    using Opposite = Min;
+    using Opposite = Min<T>;
     template <class ForwardIterator>
     static ForwardIterator
     extreme_element(ForwardIterator first, ForwardIterator last)
@@ -26,7 +29,7 @@ struct Max {
         return std::max_element(first, last);
     }
     static bool
-    greater(int lhs, int rhs)
+    greater(T lhs, T rhs)
     {
         return lhs > rhs;
     }
