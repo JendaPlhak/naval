@@ -1,0 +1,192 @@
+\documentclass[12pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[czech]{babel}
+\usepackage{a4wide}
+\usepackage{amsmath, amsthm, amsfonts, amssymb, graphicx, url, fancyhdr,multicol,enumerate,titling}
+\usepackage{algpseudocode}
+\usepackage[]{algorithm2e}
+\usepackage{listings}
+\theoremstyle{plain}
+\newtheorem{thm}{Theorem} %[section]
+\newtheorem{lemma}[thm]{Lemma}
+
+\lstdefinelanguage{algpseudocode}{
+  keywordstyle=[1]{\keywordstyle},
+  keywordstyle=[2]{\operatorstyle},
+  keywordstyle=[3]{\typestyle},
+  keywordstyle=[4]{\functionstyle},
+  identifierstyle={\identifierstyle},
+  keywords=[1]{%
+    begin,end,%
+    program,procedure,function,subroutine,%
+    while,do,for,to,next,repeat,until,loop,continue,endwhile,endfor,endloop,%
+    if,then,else,endif,%
+    return},
+  literate={-}{$-$}1 {^}{$^\wedge$}1
+           {>}{{$>$\ }}1 {<}{{$<$\ }}1
+           {>=}{{$\geqslant$\ }}1 {<=}{{$\leqslant$\ }}1
+           {:=}{{$\gets$\ }}1 {!=}{{$\ne$\ }}1 {<>}{{$\ne$\ }}1
+           {->}{{$\;\to\;$}}1
+           {&&}{{\keywordstyle and\ }}4 {{||}}{{\keywordstyle or\ }}3
+           {;}{\hspace{0.2em};}2 {,}{\hspace{0.2em},}2,
+}
+
+\lstset{%
+  language={algpseudocode},
+  columns=fullflexible,
+  numbers=left,
+  numberstyle=\scriptsize,
+}
+
+\newcommand\keywordstyle{\rmfamily\bfseries\upshape}
+\newcommand\operatorstyle{\rmfamily\mdseries\upshape}
+\newcommand\typestyle{\rmfamily\mdseries\upshape}
+\newcommand\functionstyle{\rmfamily\mdseries\scshape}
+
+\newcommand\identifierstyle{\rmfamily\mdseries\itshape}
+
+\newcommand\addkeywords[1]{%
+  \lstset{morekeywords=[1]{#1}}}
+
+\newcommand\addoperators[1]{%
+  \lstset{morekeywords=[2]{#1}}}
+
+\newcommand\addtypes[1]{%
+  \lstset{morekeywords=[3]{#1}}}
+
+\newcommand\addfunctions[1]{%
+  \lstset{morekeywords=[4]{#1}}}
+
+\newcommand{\Z}{\mathbb{Z}}
+\newcommand{\N}{\mathbb{N}}
+
+\begin{document}
+\pagestyle{fancy}                      %Pro větší­ možnosti práce se záhlaví­mi a zápatími
+\fancyhf{}                             %"vyčištění záhlaví a zápatí"
+%\renewcommand{\headheight}{25 pt}                  %
+\addtolength{\topmargin}{-30 pt}                   %
+\setlength{\headsep}{10 pt}                      %
+\fancyhead[L]{{\emph{IV003 - sada 1, příklad 3}}}  %
+\fancyhead[R]{{\emph{Jan Plhák (UČO 408420), Vladimír Sedláček (UČO 408178)}}}                  % Nastavení­ pro titulní­ stranu
+%\fancyfoot[L]{Školní rok 2009/2010}                %
+%\renewcommand{\footrulewidth}{0.8 pt}              %
+\renewcommand{\headrulewidth}{1 pt}                %               %
+
+\addfunctions{PUSH}
+\addfunctions{POP}
+\addfunctions{QPUSH}
+\addfunctions{QPULL}
+\addfunctions{BPUSH}
+\addfunctions{BPOP}
+\addfunctions{BPULL}
+\addfunctions{BALANCE}
+
+V obou částech této úlohy si vždy budeme držet počítadla velikosti všech zásobníků, která vždy inkrementujeme, resp. dekrementujeme při volání funkcí PUSH, resp. POP. Budeme k tomu pouze konstantně mnoho paměti. Proto se níže budeme odkazovat na počet prvků v zásobníku, aniž bychom to explicitně zmiňovali. Asymptotická časová složitost tímto nijak ovlivněna nebude, protože bude amortizovaně konstantní, stejně jako všechny funkce, které navrhneme.
+
+\begin{enumerate}[a)]
+\item
+Budeme uvažovat dva zásobníky $S_1,S_2$ (které jsou na začátku prázdné) spolu se standardními funkcemi PUSH a POP, kde PUSH($S_i,a$) vloží prvek $a$ na vrchol zásobníku $S_i$ a POP($S_i$) smaže vrchol zásobníku $S_i$. Frontu budeme implementovat pomocí funkcí QPUSH a QPULL, které definujeme následovně:
+
+\begin{lstlisting}[mathescape]
+function QPUSH($a$):
+  PUSH($S_1,a$)
+\end{lstlisting}
+
+\begin{lstlisting}[mathescape]
+function QPULL():
+  if ($S_2=\emptyset$) 
+    while ($S_1\neq \emptyset$)
+         PUSH($S_2$,POP($S_1$))
+  return POP($S_2$)
+\end{lstlisting}
+
+U funkce QPUSH je jasné, že její výpočet je vždy konečný. U funkce QPULL to plyne z toho, že cyklus while z řádků 3-4 proběhne právě tolikrát, kolik je počet prvků v $S_1$ před jeho zahájením, což je určitě konečné číslo.\\
+
+Dále ukážeme, že QPUSH a QPULL skutečně implementují frontu. To plyne z následujících podmínek:
+\begin{enumerate}[I.]
+\item prvky v $S_1$ jsou od vrcholu po dno uspořádány vzestupně podle \uv{stáří}
+\item prvky v $S_2$ jsou od vrcholu po dno uspořádány sestupně podle \uv{stáří}
+\item libovolný prvek z $S_1$ je mladší než libovolný prvek z $S_2$
+\item \uv{nejstarší} prvek je vždy buďto na vrcholu zásobníku $S_2$, resp. na dně zásobníku
+ $S_1$, je-li $S_2$ prázdný.
+\end{enumerate}
+Na začátku jsou oba zásobníky prázdné, takže všechny podmínky triviálně platí. Platí-li tyto podmínky před zavoláním QPUSH, platí i po něm, neboť II,III a IV nejsou ovlivněny a \uv{nejmladší} prvek přijde na vrchol $S_1$. Dále předpokládejme, že všechny čtyři podmínky platí před zavoláním QPULL. V případě $S_2\neq\emptyset$ se podmínka I nemění, podmínka II zůstane zachována (podle IV jsme totiž smazali nejstarší prvek), podmínka III evidentně zůstane v platnosti (pouze jsme ji oslabili), a podmínka IV plyne ze II v případě, kdy v $S_2$ zbývají ještě nějaké další prvky, resp. z platnosti IV předtím v případě, že $S_2$ nyní bude prázdné. Konečně, v případě $S_2=\emptyset$ zůstanou po zavolání QPULL podmínky I a III v platnosti (neboť $S_1$ bude prázdný) a podmínky II a IV vyplynou z platnosti I před voláním QPULL.
+
+Protože prvek, který \uv{ve finále} QPULL smaže, je vždy na vrcholu $S_2$, vyplývá z podmínek výše, že se skutečně jedná o implementaci fronty.\\
+
+Nyní provedeme analýzu složitosti pomocí kreditové metody. Uvažme libovolnou posloupnost délky $n$ skládající se z funkcí QPUSH a QPULL. Operaci QPUSH přiřadíme čtyři kredity, operaci QPULL žádný. Skutečná cena QPUSH je přitom 1 a skutečná cena QPULL je 
+$$\begin{cases}
+1& \text{ pokud } |S_2|>0\\
+2|S_1|& \text{ pokud } |S_2|=0.
+\end{cases}$$
+Ukážeme, že pro počet kreditů na účtu $k$ bude v každém okamžiku platit 
+\begin{equation}\label{kr}
+k=3|S_1|+|S_2|,
+\end{equation} zejména tedy bude nezáporný. To zřejmě platí na začátku, kdy $k=0=|S_1|=|S_2|$. Použitím operace QPUSH se tato rovnost zachová, neboť pravá strana \eqref{kr} se zvýší o $(3(|S_1|+1)+|S_2|)-(3|S_1|+|S_2|)=3$ a levá taktéž o $4-1=3$. Podobně, při volání QPULL v případě $|S_2|>0$ se pravá strana \eqref{kr} sníží o $(3|S_1|)+|S_2|)-(3|S_1|+|S_2|-1)=1$ a levá strana se sníží o $1-0=1$. Konečně, při volání QPULL v případě $|S_2|=0$ se pravá strana \eqref{kr} sníží o $(3|S_1|)+0)-(3\cdot 0+|S_1|)=2|S_1|$ a levá se taktéž sníží o $2|S_1|-0=2|S_1|$. Tím jsme ukázali, že \eqref{kr} je invariantem naší struktury.\\
+
+Protože QPUSH se v naší posloupnosti provede nejvýše $n$-krát, je celkový počet vytvořených kreditů nejvýše $4n$. Proto lze celkovou složitost celé posloupnosti odhadnout shora výrazem $4n\in\mathcal{O}(n)$. Z toho plyne, že amortizovaná složitost obou operací QPUSH i QPULL je konstantní.\\
+\item
+Uvažujme zásobníky $S_1,S_2,S_3$ se stejnými předpoklady jako v a). Datovou strukturu Both budeme implementovat pomocí funkcí BPUSH, BPOP a BPULL a pomocné funkce BALANCE, které definujeme níže:
+
+\begin{lstlisting}[mathescape]
+function BPUSH($a$):
+  PUSH($S_1,a$)
+\end{lstlisting}
+
+\begin{lstlisting}[mathescape]
+function BPOP():
+  if ($S_1=\emptyset$) 
+    BALANCE()
+  return POP($S_1$)
+\end{lstlisting}
+
+\begin{lstlisting}[mathescape]
+function BPULL():
+  if ($S_2=\emptyset$)   
+     while ($S_1\neq \emptyset$)
+       PUSH($S_2$,POP($S_1$)) 
+     BALANCE()
+  return POP($S_2$)
+\end{lstlisting}
+
+\begin{lstlisting}[mathescape]
+function BALANCE():
+  for $i=1,\dots,\Big\lceil \frac{|S_2|}{2}\Big\rceil$
+    PUSH($S_3$,POP($S_2$))   
+  while ($S_2\neq \emptyset$)
+       PUSH($S_1$,POP($S_2$))
+  while ($S_3\neq \emptyset$)
+       PUSH($S_2$,POP($S_3$))  
+\end{lstlisting}
+Konečnost výpočtu všech čtyř funkcí plyne z faktu, že všechny while cykly jsou vždy mají nejvýše tolik iterací, kolik je prvků v příslušném zásobníku $S_i$ (ze kterého zrovna odebíráme), což je určitě konečné číslo.\\
+
+Dále ukážeme, že BPUSH, BPOP a QPULL skutečně implementují datovou strukturu Both. To plyne z následujících podmínek:
+\begin{enumerate}[I.]
+\item prvky v $S_1$ jsou od vrcholu po dno uspořádány vzestupně podle \uv{stáří}
+\item prvky v $S_2$ jsou od vrcholu po dno uspořádány sestupně podle \uv{stáří}
+\item libovolný prvek z $S_1$ je mladší než libovolný prvek z $S_2$
+\item zásobník $S_3$ je před a po volání každé funkce prázdný
+\item \uv{nejstarší} prvek je vždy buďto na vrcholu zásobníku $S_2$, resp. na dně zásobníku
+ $S_1$, je-li $S_2$ prázdný.
+\item \uv{nejmladší} prvek je vždy buďto na vrcholu zásobníku $S_1$, resp. na dně zásobníku
+ $S_2$, je-li $S_1$ prázdný.
+\end{enumerate}
+Všimněme si, že platnost podmínek I-IV už zaručuje také platnost podmínek V a VI, proto stačí ukázat, že podmínky I-IV zůstanou všemi funkcemi BPUSH, BPOP a BPULL zachovány (na začátku tyto podmínky zřejmě platí). U podmínky IV je to jasné, protože do $S_3$ se prvky mohou dostat při volání funkce BALANCE, během které jsou však později všechny přesunuty zpět do $S_2$. Funkce BPUSH přidává nejmladší prvek na vrchol $S_1$, takže zachovává všechny podmínky. Nyní se zaměřme na funkci BPOP. V případě, kdy $S_1\neq\emptyset$, pouze smaže vrchní prvek, takže podmínky I-III zřejmě zůstanou zachovány. V opačném případě máme $S_2\neq\emptyset$ (jinak jsou všechny zásobníky prázdné a vše triviálně platí), takže po zavolání BALANCE se spodní polovina prvků z $S_2$ ocitne v $S_1$ v opačném pořadí a vrchní polovina prvků zůstane v $S_2$ ve stejném pořadí. Díky platnosti podmínky II před voláním funkce a faktu, že $S_1$ byl prázdný, tak snadno vidíme, že všechny tři podmínky I-III zůstanou v plastnosti, a to i po následném POP($S_1$). U funkce BPULL můžeme argumentovat zcela analogicky, pouze je potřeba si uvědomit, že v případě $S_2=\emptyset$ se díky podmínce I zachovají podmínky I-III (a finální POP($S_2$) na konci BPULL také nic nepokazí). Tím jsme ukázali, že podmínky V a VI platí po celou dobu, z čehož plyne korektnost celého algoritmu (stačí se podívat, že odpovídající funkce mažou prvky ze správných míst).
+
+Teď provedeme analýzu časové složitosti. Cena BPUSHe je zřejmě 1. Dále je vidět, že každé volání funkce BALANCE nás stojí $$2\lceil\frac{|S_2|}{2}\rceil+2(|S_2|-\lceil\frac{|S_2|}{2}\rceil)+2\lceil\frac{|S_2|}{2}\rceil\leq 3|S_2|$$
+časových jednotek, z čeho snadno plyne, že cena BPOPu je
+$$\begin{cases}
+1& \text{ pokud } |S_1|>0\\
+3|S_2|+1& \text{ pokud } |S_1|=0
+\end{cases}$$
+a  cena BPULLu je
+$$\begin{cases}
+1& \text{ pokud } |S_2|>0\\
+5|S_1|+1& \text{ pokud } |S_2|=0.
+\end{cases}$$
+Nyní si stačí uvědomit, že po každém \uv{drahém} volání BPOPu s $|S_2|=k>0$, resp. BPULLu s $|S_1|=k>0$ bude následujících nejméně $\lceil \frac{k}{2}\rceil$ operací \uv{levných} (neboť všechny tři funkce budou za těchto podmínek mít cenu 1) tj. celková cena takovéhoto úseku $\lceil \frac{k}{2}\rceil+1$ operací bude $3k+1+k\in\mathcal{O}(k)$, resp. $5k+1+k\in\mathcal{O}(k)$. Protože zároveň $\lceil \frac{k}{2}\rceil+1\in \mathcal{O}(k)$, můžeme tvrdit, že po \uv{zprůměrování} budou všechny tři funkce amortizovaně konstantní (přesněji, pokud bychom si libovolnou posloupnost našich tří funkcí délky $n$ rozdělili na úseky tohoto typu a úseky obsahující pouze BPUSH, můžeme z argumentace výše vidět, že celková časová složitost této posloupnosti bude v $\mathcal{O}(n)$, s možnou výjimkou jediného neukončeného úseku na konci naší posloupnosti, který ale asymptotickou složitost nezmění.)
+
+(Pro ještě preciznější argumentaci by bylo potřeba použít potenciálovou funkci, ale volba $\Phi(i):=a|S_1|(i)+b|S_2|(i)$ pro $a,b\in\mathbb{R}$, kde $|S_j|(i)$ značí počet prvků $j$-tého zásobníku po $i$-tém kroku, vedla na systém dvou nerovností $|S_2|(6+a-b)\leq 0$, $|S_1|(10+b-a)\leq 0$, který nemá řešení. Možná se někde stala chyba při výpočtu.)
+\end{enumerate}
+\end{document}
