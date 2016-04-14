@@ -1,0 +1,107 @@
+\documentclass[12pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[czech]{babel}
+\usepackage{a4wide}
+\usepackage{amsmath, amsthm, amsfonts, amssymb, graphicx, url, fancyhdr,multicol,enumerate,titling}
+\usepackage{algpseudocode}
+\usepackage[]{algorithm2e}
+\usepackage{listings}
+\theoremstyle{plain}
+\newtheorem{thm}{Theorem} %[section]
+\newtheorem{lemma}[thm]{Lemma}
+
+\lstdefinelanguage{algpseudocode}{
+  keywordstyle=[1]{\keywordstyle},
+  keywordstyle=[2]{\operatorstyle},
+  keywordstyle=[3]{\typestyle},
+  keywordstyle=[4]{\functionstyle},
+  identifierstyle={\identifierstyle},
+  keywords=[1]{%
+    begin,end,%
+    program,procedure,function,subroutine,%
+    while,do,for,to,next,repeat,until,loop,continue,endwhile,endfor,endloop,%
+    if,then,else,endif,%
+    return},
+  literate={-}{$-$}1 {^}{$^\wedge$}1
+           {>}{{$>$\ }}1 {<}{{$<$\ }}1
+           {>=}{{$\geqslant$\ }}1 {<=}{{$\leqslant$\ }}1
+           {:=}{{$\gets$\ }}1 {!=}{{$\ne$\ }}1 {<>}{{$\ne$\ }}1
+           {->}{{$\;\to\;$}}1
+           {&&}{{\keywordstyle and\ }}4 {{||}}{{\keywordstyle or\ }}3
+           {;}{\hspace{0.2em};}2 {,}{\hspace{0.2em},}2,
+}
+
+\lstset{%
+  language={algpseudocode},
+  columns=fullflexible,
+  numbers=left,
+  numberstyle=\scriptsize,
+}
+
+\newcommand\keywordstyle{\rmfamily\bfseries\upshape}
+\newcommand\operatorstyle{\rmfamily\mdseries\upshape}
+\newcommand\typestyle{\rmfamily\mdseries\upshape}
+\newcommand\functionstyle{\rmfamily\mdseries\scshape}
+
+\newcommand\identifierstyle{\rmfamily\mdseries\itshape}
+
+\newcommand\addkeywords[1]{%
+  \lstset{morekeywords=[1]{#1}}}
+
+\newcommand\addoperators[1]{%
+  \lstset{morekeywords=[2]{#1}}}
+
+\newcommand\addtypes[1]{%
+  \lstset{morekeywords=[3]{#1}}}
+
+\newcommand\addfunctions[1]{%
+  \lstset{morekeywords=[4]{#1}}}
+
+\newcommand{\Z}{\mathbb{Z}}
+\newcommand{\N}{\mathbb{N}}
+
+\begin{document}
+\pagestyle{fancy}                      %Pro větší­ možnosti práce se záhlaví­mi a zápatími
+\fancyhf{}                             %"vyčištění záhlaví a zápatí"
+%\renewcommand{\headheight}{25 pt}                  %
+\addtolength{\topmargin}{-30 pt}                   %
+\setlength{\headsep}{10 pt}                      %
+\fancyhead[L]{{\emph{IV003 - sada 2, příklad 2}}}  %
+\fancyhead[R]{{\emph{Jan Plhák (UČO 408420), Vladimír Sedláček (UČO 408178)}}}                  % Nastavení­ pro titulní­ stranu
+%\fancyfoot[L]{Školní rok 2009/2010}                %
+%\renewcommand{\footrulewidth}{0.8 pt}              %
+\renewcommand{\headrulewidth}{1 pt}                %               %
+
+\addfunctions{min_path}
+
+V následujícím pseudokódu budeme funkcí $ \operatorname{dist}(a,b) $ rozumět euklidovskou vzdálenost bodů $ a $ a $ b $.
+
+\begin{lstlisting}[mathescape]
+function min_path(X)
+  $W_{1,1}$ := 0
+  for $j=1,\dots,n$
+    for $i=1,\dots,j - 1$
+      if $ i = j - 1 $
+        $ W_{i, j} $ := $ \min\limits_{1 \leq k \leq j - 2} \{W_{k, j - 1} + \operatorname{dist}(X[k], X[j])\} $
+      else
+        $ W_{i, j} $ := $ W_{i, j - 1} + \operatorname{dist}(X[j - 1], X[j]) $
+
+\end{lstlisting}
+
+Z omezeného počtu kroků ve for cyklech a nepřítomnosti rekurze plyne, že výpočet algoritmu bude vždy konečný. Nyní nejprve indukcí dokážeme invariant prvního cyklu, který říká, že prvek $ pair[i] $ představuje minimální možnou cestu, kterou se auta mohla dostat do konfigurace $ (i, i+1) $, tedy že první auto končí v bodě $ X[i] $ a druhé v $ X[i + 1] $. Na začátku toto tvrzení pro konfiguraci $ (1, 2) $ zřejmě platí. Předpokládejme, že tvrzení platí i na konci $( i - 1 )$-té iterace. Dále mějme nějakou minimální možnou cestu, kterou jsme se dostali do konfigurace $ (i, i + 1) $ (označme auto v bodě $ X[i] $ $A $ a to druhé $ B $). Do této konfigurace jsme mohli dostat jedině tak, že se buď (1) auta v určitou chvíli předjela nebo (2) $ B $ přijelo přímo z bodu $ X[1] $. Rozeberme tyto případy.
+
+\begin{enumerate}
+\item 
+V prvním případě to znamená, že v tomto řešení existoval stav,  $ (k, k + 1) , k < i $, kde v k je auto $ B $ a v $ k + 1 $ je auto $ A $. Z toho vyplývá, že auto $ A $ obsloužilo body $ X[k + 1], \dots, X[i]$ a auto $ B $ jelo přímo do bodu $ X[i + 1] $. To je ale přesně obsahem řádku 6 našeho algoritmu. Protože z indkučního předpokladu víme, že řešení, které jsme použili na řádku 6 k rozšíření na řešení aktuálního problému, bylo nejlepší možné (minimální), a navíc jsme prošli všechny možné konfigurace $ (k, k + 1) $, musí být řešení získané na řádku 9 nejlepší (minimální) možné.
+
+\item Ve druhém případě jsme nutně autem $ A $ obsloužili všechny body až na ten poslední a auto $ B $ jelo přímo do bodu $ X[i+1] $. Tato možnost je ale opět pokryta řádkem 6 díky vložení na řádku 2. 
+\end{enumerate}
+
+Získáváme proto minimální řešení problému kdy auta mají končit v konfiguraci $ (i, i+1) $, což jsme chtěli dokázat.
+
+
+
+
+
+\end{document}
