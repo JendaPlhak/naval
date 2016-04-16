@@ -75,7 +75,7 @@
 
 \addfunctions{min_path}
 
-V následujícím pseudokódu budeme funkcí $ \operatorname{dist}(a,b) $ rozumět euklidovskou vzdálenost bodů $ a $ a $ b $.
+V následujícím pseudokódu budeme funkcí $ \operatorname{dist}(a,b) $ rozumět euklidovskou vzdálenost bodů $ a $ a $ b $. Dále také poznamenejme, že v případě, že by některá trojice ze vstupní množiny $ X $ ležela na přímce a my chtěli cestovat z jednoho krajního bodu do druhého (na této přímce), pak nejkratší cesta vede právě přes prostřední bod z uvažované trojice, avšak předpokládejme, že pokud skutečně chceme cestovat jen mezi krajními body, pak v něm prostě nezastavíme. To je dle našeho názoru zcela legitimní (alternativně bychom mohli uvažovat libovolně malou úpravu trasy mezi těmito dvěma body tak, abychom se tomuto bodu zcela vyhnuli). Následující algoritmus pro vstupní posloupnost bodů $ X $ určí nejmenší možnou vzdálenost, kterou musí auta urazit aby obsloužila všechny body v daném pořadí.
 
 \begin{lstlisting}[mathescape]
 function min_path(X)
@@ -86,20 +86,17 @@ function min_path(X)
         $ W_{i, j} $ := $ \min\limits_{1 \leq k \leq j - 2} \{W_{k, j - 1} + \operatorname{dist}(X[k], X[j])\} $
       else
         $ W_{i, j} $ := $ W_{i, j - 1} + \operatorname{dist}(X[j - 1], X[j]) $
+  
+  return $ \min\limits_{1 \leq i < n} \{W_{i, n}\} $
 
 \end{lstlisting}
 
-Z omezeného počtu kroků ve for cyklech a nepřítomnosti rekurze plyne, že výpočet algoritmu bude vždy konečný. Nyní nejprve indukcí dokážeme invariant prvního cyklu, který říká, že prvek $ pair[i] $ představuje minimální možnou cestu, kterou se auta mohla dostat do konfigurace $ (i, i+1) $, tedy že první auto končí v bodě $ X[i] $ a druhé v $ X[i + 1] $. Na začátku toto tvrzení pro konfiguraci $ (1, 2) $ zřejmě platí. Předpokládejme, že tvrzení platí i na konci $( i - 1 )$-té iterace. Dále mějme nějakou minimální možnou cestu, kterou jsme se dostali do konfigurace $ (i, i + 1) $ (označme auto v bodě $ X[i] $ $A $ a to druhé $ B $). Do této konfigurace jsme mohli dostat jedině tak, že se buď (1) auta v určitou chvíli předjela nebo (2) $ B $ přijelo přímo z bodu $ X[1] $. Rozeberme tyto případy.
 
-\begin{enumerate}
-\item 
-V prvním případě to znamená, že v tomto řešení existoval stav,  $ (k, k + 1) , k < i $, kde v k je auto $ B $ a v $ k + 1 $ je auto $ A $. Z toho vyplývá, že auto $ A $ obsloužilo body $ X[k + 1], \dots, X[i]$ a auto $ B $ jelo přímo do bodu $ X[i + 1] $. To je ale přesně obsahem řádku 6 našeho algoritmu. Protože z indkučního předpokladu víme, že řešení, které jsme použili na řádku 6 k rozšíření na řešení aktuálního problému, bylo nejlepší možné (minimální), a navíc jsme prošli všechny možné konfigurace $ (k, k + 1) $, musí být řešení získané na řádku 9 nejlepší (minimální) možné.
+Z omezeného počtu kroků ve for cyklech a nepřítomnosti rekurze plyne, že výpočet algoritmu bude vždy konečný. Dále chceme ukázat, že každé incializované $ W_{i,j} $ bude nejmenší vzdálenost jakou musí auta dohromady urazit, aby se dostala do situace, kdy poslední pozice jednoho auta je v bodě $ X[i] $, druhé se bude nacházet v bodě $ X[j] $ a všechny body $X[1],\dots,X[j] $ byly obslouženy. Pro $ W_{1,1} $ je řešení trivialně 0. Počítáme-li nejlepší možnou cestu pro situaci $ W_{i,j} $, můžeme BÚNO předpokládat, že $ i < j $. Naopak bychom postupovali zcela symetricky a $ i = j $ nemá smysl uvažovat výjma situaci $ i = j = 1 $, ale tu jsme již vyšetřili. Nyní stačí vyšetřit dvě možné situace. Buďto $ i \neq j - 1$, pak musela situaci $ W_{i,j} $ nutně předcházet situace $ W_{i,j - 1} $ a výsledná vzdálenost je přesně uvedena v algoritmu na řádku 8.  Pokud naopak $ i = j - 1$, pak muselo auto v současnosti umístěné v bodu $ X[j] $ do tohoto bodu přicestovat z některého z bodů $ X[1],\dots,X[i - 1 = j -2] $ (jinak bychom dostali situaci, ve které jsme některý z bodů nenavštívili v předepsaném pořadí). Stačí tedy najít minimum z těchto situaci, což je přesně obsahem řádku 6. Řešením úlohy pro X bodů je pak minimum ze situací $ W_{i, n} $ pro $ 1 \leq i < n $, neboť toto jsou všechny konfigurace, kterými jsme mohli pokrýt všech $ n $ bodů a algoritmus proto korektně najde nejmenší možnou vzdálenost, kterou musí obě auta urazit tak, aby splnila podmínky zadání. 
 
-\item Ve druhém případě jsme nutně autem $ A $ obsloužili všechny body až na ten poslední a auto $ B $ jelo přímo do bodu $ X[i+1] $. Tato možnost je ale opět pokryta řádkem 6 díky vložení na řádku 2. 
-\end{enumerate}
+Abychom byli schopni získat také cestu, kterou auta musí jet, aby body obsloužili s nejkratší možnou vzdáleností, stačí uvedenou funkci modifikovat tak, že si při každém přiřazení do $ W_{i,j} $ zapamatujeme, ze které konfigurace jsme se aktuální pozice nejlépe dostali. Na konci pak stačí provést jednoduchý backtracking, čímž bude cesta plně zrekonstruována.
 
-Získáváme proto minimální řešení problému kdy auta mají končit v konfiguraci $ (i, i+1) $, což jsme chtěli dokázat.
-
+Je zřejmé, že při průchodu algoritmem dojde ke splnění podmínky $ i = j - 1 $ méně než $ n $-krát a k nalezení minima na řádku 6 pak bude stačit také nejvýše $ n $ kroků. To nám dáva odhad počet kroků v této větvi algoritmu $ n^2$. K vyhodnocení druhé větve algoritmu pak dojde nejvýše $ n^2 $-krát, přičemž každé jednotlivé vyhodnocení této větve trvá konstantní čas. Nakonec ještě vybíráme minimum z $ n $ prvků, což se dá realizovat v lineárním čase a proto je celková složitost algoritmu v $\mathcal{O}(n^2) $.
 
 
 
