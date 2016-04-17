@@ -106,3 +106,57 @@ TEST_CASE( "Basic test" ) {
 		REQUIRE( sched.size() == 5 );
 	}
 }
+
+TEST_CASE( "Custom test" ) {
+    std::vector< Node > n;
+
+    for ( int i = 0; i < 16; ++i )
+        n.emplace_back( i );
+
+    n[0].addChild( n[1] );
+    n[0].addChild( n[4] );
+    n[0].addChild( n[2] );
+    n[0].addChild( n[3] );
+    n[0].addChild( n[15] );
+
+    n[1].addChild( n[5] );
+    n[1].addChild( n[6] );
+    n[1].addChild( n[7] );
+
+    n[2].addChild( n[8]  );
+    n[2].addChild( n[9]  );
+    n[2].addChild( n[10] );
+
+    n[3].addChild( n[11] );
+
+    n[11].addChild( n[12] );
+
+    n[12].addChild( n[13] );
+    n[13].addChild( n[14] );
+
+    // SECTION( "hand written schedule" ) {
+    //     Schedule sched;
+
+    //     sched.push_back( { { &n[0], &n[1] } } );
+
+    //     sched.push_back( { { &n[0], &n[2] },
+    //                        { &n[1], &n[4] } } );
+
+    //     sched.push_back( { { &n[0], &n[3] },
+    //                        { &n[1], &n[5] },
+    //                        { &n[2], &n[7] } } );
+
+    //     sched.push_back( { { &n[1], &n[6] },
+    //                        { &n[7], &n[8] } } );
+
+    //     sched.push_back( { { &n[8], &n[9] } } );
+
+    //     testSchedule( n[0], sched );
+    // }
+
+    SECTION( "computed schedule" ) {
+        Schedule sched = createSchedule( n[0] );
+        testSchedule( n[0], sched );
+        REQUIRE( sched.size() == 6 );
+    }
+}

@@ -23,6 +23,8 @@ public:
     void setIt(uint n_iterations) {
         _n_iterations = n_iterations;
     }
+    // Get number of iterations necessary to send messages to all of *this
+    // children.
     uint getIt() const {
         assert(_n_iterations != None);
         return _n_iterations;
@@ -62,11 +64,6 @@ post_order(Node *node, Visitor visitor)
 uint
 extra(const std::vector<Node*>& children)
 {
-    for (const auto child : children) {
-        std::cout << child->getIt() << " ";
-    }
-    std::cout << std::endl;
-
     uint extra  = 0;
     uint buffer = 0;
     for (size_t i = 1; i < children.size(); ++i) {
@@ -93,7 +90,6 @@ createSchedule( Node & root )
             node->setIt(children.front()->getIt() + extra(children) + 1);
         }
     });
-    std::cout << root.getIt() << std::endl;
     Schedule schedule(root.getIt());
 
     std::function<void(Node*, uint)> create_schedule =
