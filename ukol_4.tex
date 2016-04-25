@@ -84,10 +84,10 @@ Pro každý vrchol $ v $ tedy potřebujeme znát hodnotu funkce $ \It $. Je-li $
 
 %\begin{lstlisting}[mathescape]
 %function $ \operatorname{extra} $(v)
-%  iterations := $ \{ \It(u) \mid u \in children(v) \}$ sorted descending 
-%  extra := 0 
-%  buffer := 0 
-%  for $i=2,\dots,|iterations| $ 
+%  iterations := $ \{ \It(u) \mid u \in children(v) \}$ sorted descending
+%  extra := 0
+%  buffer := 0
+%  for $i=2,\dots,|iterations| $
 %    buffer $\mathrel{+}= iterations[i - 1] - iterations[i]$
 %    if buffer = 0:
 %      extra $\mathrel{+}= 1 $
@@ -98,7 +98,7 @@ Pro každý vrchol $ v $ tedy potřebujeme znát hodnotu funkce $ \It $. Je-li $
 
 \begin{lstlisting}[mathescape]
 function $ \operatorname{extra} $(v)
-  iterations := $ \{ \It(u) \mid u \in children(v) \}$ sorted descending 
+  iterations := $ \{ \It(u) \mid u \in children(v) \}$ sorted descending
   extra := 0
   for $i=2,\dots,|iterations| $
     if $iterations [ i ] > iterations[ 1 ]-i+1$
@@ -121,7 +121,7 @@ function $ \operatorname{compute\_it} $(T)
 
 V každém vrcholu tím máme k dispozici počet iterací nezbytný pro obsloužení každého ze synů. Zprávy pak budeme synům posílat v sestupném uspořádání synů podle počtu nezbytných iterací.\\
 
-Z konečnosti prohledávání do hloubky a nepřítomnosti rekurze vyplývá, že uvedený algoritmus bude vždy konečný. K důkazu korektnosti proto stačí ukázat, že způsob, jakým počítáme $ \It(v) $, je korektní. Pokud je $ v $ list, pak je tvrzení zřejmé. Předpokládejme tedy, že $ v $ není list. Položme $iterations :=  \{ \It(u) \mid u \in children(v) \}$ sorted descending, tak jako na řádku 2 funkce extra.  Podle počátečního pozorování už víme, že nejefektivnější je poslat zprávu všech synům v sestupném uspořádání podle počtu nezbytných iterací. Proto nejprve pošleme zprávu tomu s nejvyšším počtem iterací, což nás bude stát jednu iteraci. Za dalších $iterations[1]$ iterací pak zprávu obdrží celý podstrom tohoto syna. Zbývá tedy ukázat, že po $iterations[1]+1$ iteracích bude potřebných ještě $extra(u)$ iterací, aby zprávu obdržel celý podstrom $u$. Dále budeme bez újmy na obecnosti předpokládat, že $iterations[1]\geq |iterations|$ (pokud by to nebyla pravda, mohli bychom každé číslo $iterations[1]$ zvýšit o stejnou dostatečně velkou konstantu $c$, tím by se $It(v)$ i $\max\limits_{u \in children(v)}\{\It(u)\}$ zvýšilo o $c$ a extra($v$) by se skutečně nezměnilo, neboť rozdíly $iterations[i]-iterations[1]$ by zůstaly stejné). Díky tomu, v jakém pořadí zprávy posíláme, je potom jasné, že během těchto $iterations[1]+1$ iterací zpracuje podstrom $i$-tého syna $v$ právě $iterations[1]+1-i\geq 1$ iterací z $iterations[i]$ nutných (pro všechna $i\in{1,\dots,|iterations|}$). Protože vrchol $v$ už potom žádné další zprávy posílat nemusí (a tudíž se další zprávy šíří \uv{paralelně}), od tohoto okamžiku potřebujeme ještě dalších $\max\limits_{u \in children(v)}\{iterations[i]-(iterations[1]+1-i)\}$ iterací, aby podstromy všech synů $v$ obdržely zprávy. Je ale vidět, že přesně tuto hodnotu počítá funkce extra, takže jsme hotovi a celý agoritmus je korektní.\\
+Z konečnosti prohledávání do hloubky a nepřítomnosti rekurze vyplývá, že uvedený algoritmus bude vždy konečný. K důkazu korektnosti proto stačí ukázat, že způsob, jakým počítáme $ \It(v) $, je korektní. Pokud je $ v $ list, pak je tvrzení zřejmé. Předpokládejme tedy, že $ v $ není list. Položme $iterations :=  \{ \It(u) \mid u \in children(v) \}$ sorted descending, tak jako na řádku 2 funkce extra.  Podle počátečního pozorování už víme, že nejefektivnější je poslat zprávu všech synům v sestupném uspořádání podle počtu nezbytných iterací. Proto nejprve pošleme zprávu tomu s nejvyšším počtem iterací, což nás bude stát jednu iteraci. Za dalších $iterations[1]$ iterací pak zprávu obdrží celý podstrom tohoto syna. Zbývá tedy ukázat, že po $iterations[1]+1$ iteracích bude potřebných ještě $extra(u)$ iterací, aby zprávu obdržel celý podstrom $u$. Dále budeme bez újmy na obecnosti předpokládat, že $iterations[1]\geq |iterations|$ (pokud by to nebyla pravda, mohli bychom každé číslo $iterations$ zvýšit o stejnou dostatečně velkou konstantu $c$, tím by se $It(v)$ i $\max\limits_{u \in children(v)}\{\It(u)\}$ zvýšilo o $c$ a extra($v$) by se skutečně nezměnilo, neboť rozdíly $iterations[i]-iterations[1]$ by zůstaly stejné). Díky tomu, v jakém pořadí zprávy posíláme, je potom jasné, že během těchto $iterations[1]+1$ iterací zpracuje podstrom $i$-tého syna $v$ právě $iterations[1]+1-i\geq 1$ iterací z $iterations[i]$ nutných (pro všechna $i\in{1,\dots,|iterations|}$). Protože vrchol $v$ už potom žádné další zprávy posílat nemusí (a tudíž se další zprávy šíří \uv{paralelně}), od tohoto okamžiku potřebujeme ještě dalších $\max\limits_{u \in children(v)}\{iterations[i]-(iterations[1]+1-i)\}$ iterací, aby podstromy všech synů $v$ obdržely zprávy. Je ale vidět, že přesně tuto hodnotu počítá funkce extra, takže jsme hotovi a celý agoritmus je korektní.\\
 
 %Pokud je $ u $ list, pak je tvrzení zřejmé. Předpokládejme tedy, že $ u $ není list. Pokud má $ u $ jen jednoho potomka, pak formule funguje bezvadně, neboť extra($u$)$=0$ (for cyklus na řádcích 5-10 bude prázdný), a skutečně budeme potřebovat jednu iteraci na zaslání zprávy potomkovi plus $ \It(child(u)) $ iterací na vyřízení potomka. Předpokládejme proto, že formule funguje, pokud má $ u $ nejvýše $ l $ potomků a ukážeme, že pak musí fungovat také v případě, že jich má $ l + 1 $. \\
 
