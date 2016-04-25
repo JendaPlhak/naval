@@ -75,7 +75,7 @@
 
 \addfunctions{min_path}
 
-V následujícím pseudokódu budeme funkcí $ \operatorname{dist}(a,b) $ rozumět euklidovskou vzdálenost bodů $ a $ a $ b $. Dále také poznamenejme, že v případě, že by některá trojice ze vstupní množiny $ X $ ležela na přímce a my chtěli cestovat z jednoho krajního bodu do druhého (na této přímce), pak nejkratší cesta vede právě přes prostřední bod z uvažované trojice, avšak předpokládejme, že pokud skutečně chceme cestovat jen mezi krajními body, pak v něm prostě nezastavíme. To je dle našeho názoru zcela legitimní (alternativně bychom mohli uvažovat libovolně malou úpravu trasy mezi těmito dvěma body tak, abychom se tomuto bodu zcela vyhnuli). Následující algoritmus pro vstupní posloupnost bodů $ X $ určí nejmenší možnou vzdálenost, kterou musí auta urazit aby obsloužila všechny body v daném pořadí.
+V následujícím pseudokódu budeme funkcí $ \operatorname{dist}(a,b) $ rozumět euklidovskou vzdálenost bodů $ a $ a $ b $. Dále také poznamenejme, že v případě, že by některá trojice ze vstupní množiny $ X $ ležela na přímce a my chtěli cestovat z jednoho krajního bodu do druhého (na této přímce), pak nejkratší cesta vede právě přes prostřední bod z uvažované trojice, avšak předpokládejme, že pokud skutečně chceme cestovat jen mezi krajními body, pak v něm prostě nezastavíme. To je dle našeho názoru zcela legitimní (alternativně bychom mohli uvažovat libovolně malou úpravu trasy mezi těmito dvěma body tak, abychom se tomuto bodu zcela vyhnuli). Následující algoritmus pro vstupní posloupnost bodů $ X $ určí nejmenší možnou vzdálenost, kterou musí auta urazit, aby obsloužila všechny body v daném pořadí.
 
 \begin{lstlisting}[mathescape]
 function min_path(X)
@@ -96,7 +96,7 @@ Z omezeného počtu kroků ve for cyklech a nepřítomnosti rekurze plyne, že v
 
 Abychom byli schopni získat také cestu, kterou auta musí jet, aby body obsloužili s nejkratší možnou vzdáleností, stačí uvedenou funkci modifikovat tak, že si při každém přiřazení do $ W_{i,j} $ zapamatujeme, ze které konfigurace jsme se aktuální pozice nejlépe dostali. Na konci pak stačí provést jednoduchý backtracking, čímž bude cesta plně zrekonstruována.
 
-Je zřejmé, že při průchodu algoritmem dojde ke splnění podmínky $ i = j - 1 $ méně než $ n $-krát a k nalezení minima na řádku 6 pak bude stačit také nejvýše $ n $ kroků. To nám dáva odhad počet kroků v této větvi algoritmu $ n^2$. K vyhodnocení druhé větve algoritmu pak dojde nejvýše $ n^2 $-krát, přičemž každé jednotlivé vyhodnocení této větve trvá konstantní čas. Nakonec ještě vybíráme minimum z $ n $ prvků, což se dá realizovat v lineárním čase a proto je celková složitost algoritmu v $\mathcal{O}(n^2) $.
+Je zřejmé, že při průchodu algoritmem dojde ke splnění podmínky $ i = j - 1 $ méně než $ n $-krát a k nalezení minima na řádku 6 pak bude stačit také nejvýše $ n $ kroků. To nám dává odhad na počet kroků v této větvi algoritmu $ n^2$. K vyhodnocení druhé větve algoritmu pak dojde nejvýše $ n^2 $-krát, přičemž každé jednotlivé vyhodnocení této větve trvá konstantní čas. Nakonec ještě vybíráme minimum z $ n $ prvků, což se dá realizovat v lineárním čase a proto je celková složitost algoritmu v $\mathcal{O}(n^2) $.
 
 
 

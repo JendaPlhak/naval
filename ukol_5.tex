@@ -1,0 +1,137 @@
+\documentclass[12pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[czech]{babel}
+\usepackage{a4wide}
+\usepackage{amsmath, amsthm, amsfonts, amssymb, graphicx, url, fancyhdr,multicol,enumerate,titling}
+\usepackage{algpseudocode}
+\usepackage[]{algorithm2e}
+\usepackage{listings}
+\theoremstyle{plain}
+\newtheorem{thm}{Theorem} %[section]
+\newtheorem{lemma}[thm]{Lemma}
+
+\lstdefinelanguage{algpseudocode}{
+  keywordstyle=[1]{\keywordstyle},
+  keywordstyle=[2]{\operatorstyle},
+  keywordstyle=[3]{\typestyle},
+  keywordstyle=[4]{\functionstyle},
+  identifierstyle={\identifierstyle},
+  keywords=[1]{%
+    begin,end,%
+    program,procedure,function,subroutine,%
+    while,do,for,to,next,repeat,until,loop,continue,endwhile,endfor,endloop,%
+    if,then,else,endif,%
+    return},
+  literate={-}{$-$}1 {^}{$^\wedge$}1
+           {>}{{$>$\ }}1 {<}{{$<$\ }}1
+           {>=}{{$\geqslant$\ }}1 {<=}{{$\leqslant$\ }}1
+           {:=}{{$\gets$\ }}1 {!=}{{$\ne$\ }}1 {<>}{{$\ne$\ }}1
+           {->}{{$\;\to\;$}}1
+           {&&}{{\keywordstyle and\ }}4 {{||}}{{\keywordstyle or\ }}3
+           {;}{\hspace{0.2em};}2 {,}{\hspace{0.2em},}2,
+}
+
+\lstset{%
+  language={algpseudocode},
+  columns=fullflexible,
+  numbers=left,
+  numberstyle=\scriptsize,
+}
+
+\newcommand\keywordstyle{\rmfamily\bfseries\upshape}
+\newcommand\operatorstyle{\rmfamily\mdseries\upshape}
+\newcommand\typestyle{\rmfamily\mdseries\upshape}
+\newcommand\functionstyle{\rmfamily\mdseries\scshape}
+
+\newcommand\identifierstyle{\rmfamily\mdseries\itshape}
+
+\newcommand\addkeywords[1]{%
+  \lstset{morekeywords=[1]{#1}}}
+
+\newcommand\addoperators[1]{%
+  \lstset{morekeywords=[2]{#1}}}
+
+\newcommand\addtypes[1]{%
+  \lstset{morekeywords=[3]{#1}}}
+
+\newcommand\addfunctions[1]{%
+  \lstset{morekeywords=[4]{#1}}}
+
+\newcommand{\Z}{\mathbb{Z}}
+\newcommand{\N}{\mathbb{N}}
+
+\begin{document}
+\pagestyle{fancy}                      %Pro větší­ možnosti práce se záhlaví­mi a zápatími
+\fancyhf{}                             %"vyčištění záhlaví a zápatí"
+%\renewcommand{\headheight}{25 pt}                  %
+\addtolength{\topmargin}{-30 pt}                   %
+\setlength{\headsep}{10 pt}                      %
+\fancyhead[L]{{\emph{IV003 - sada 2, příklad 5}}}  %
+\fancyhead[R]{{\emph{Jan Plhák (UČO 408420), Vladimír Sedláček (UČO 408178)}}}                  % Nastavení­ pro titulní­ stranu
+%\fancyfoot[L]{Školní rok 2009/2010}                %
+%\renewcommand{\footrulewidth}{0.8 pt}              %
+\renewcommand{\headrulewidth}{1 pt}                %               %
+
+(Pole hodnot prvků budeme značit $V$).\\
+
+Budeme používat funkci MEDIAN\_AND\_PARTITION($A,B,l,r$), která pro pole $A,B$ a indexy $l\leq r$ najde medián $m$ hodnot $A[l],A[l+1],\dots,A[r]$ (tj. $\lceil \frac{r-l+1}{2}\rceil$-tý z těchto prvků uspořádaných vzestupně), následně pole $A$ postupným přehazováním (in situ) přeuspořádá tak, že bude platit $A[x]=m$, $A[i]\leq m$ pro všechna $l\leq i< x$ a $A[i]\geq m$ pro všechna $x\leq i< r$, a nakonec vrátí index $x=\lceil \frac{r-l+1}{2}\rceil$. Kromě toho, kdykoli funkce prohodí prvky $A[i]$ a $A[j]$, prohodí zároveň prvky $B[i]$ a $B[j]$. Tuto funkci můžeme snadno implementovat s využitím znalostí o funkcích SELECT a PARTITION z IV003 a IB002, navíc odtud víme, že její časová složitost bude v $\mathcal{O}(r-l+1)$ (neboť jak výběr mediánu, tak obě následná přeuspořádání lze provést lineárně vzhledem k velikosti pole).\\
+
+Nyní uvažme následující algoritmus:
+\begin{lstlisting}[mathescape]
+function $BALANCED(V,W,l,r)$:
+  if $r=l$
+    return $V[l]$
+  if $r=l+1$
+    if $W[l]\geq W[r]$
+      return $V[l]$
+    else return $V[r]$
+  sum:=0
+  for $i=l,\dots,r$
+    $sum+=W[i]$
+  x:=MEDIAN_AND_PARTITION($V,W,l,r$)
+  j:=l
+  lsum:=0
+  rsum:=0
+ while $V[j]\neq V[x]$
+   $lsum+=W[j]$
+   $j$++
+ rsum:=$sum-W[x]-lsum$
+ if ($lsum \leq sum/2$) and ($rsum \leq sum/2$)
+   return $V[x]$
+ else if ($lsum > sum/2$)
+   $W[x]+=rsum$
+   $BALANCED(V,W,l,x)$
+ else if ($rsum > sum/2$)
+    $W[x]+=lsum$
+    $BALANCED(V,W,x,r)$
+\end{lstlisting}
+
+Tvrdíme, že výstupem funkce $BALANCED(V,W,1,n)$ bude hodnota $V[x]$, kde $x$ je rovnovážný prvek $S$. Vzhledem k tomu, že hodnoty prvků jsou vzájemně různé, pak snadno můžeme najít rovnovážný prvek samotný.\\
+
+Nejprve ukážeme, že rovnovážný prvek $S$ vždy existuje (pro $n\geq 1$). Uspořádejme si prvky $S$ vzestupně podle jejich hodnot do posloupnosti $x_1,x_2,\dots,x_n$. Pak postupně uvažujme součty $f(t)=\sum_{i=1}^{t} w(x_i)$. Díky kladnosti vah všech prvků je funkce $f$ rostoucí, navíc platí $f(0)=0$ a $f(n)=w(S)$, proto nutně existuje $t\in\{1,\dots,n\}$ takové, že $w(S_{<x_t})+w(x_t)=f(t)>\frac{w(S)}{2}$, ale $w(S_{<x_t})=f(t-1)\leq\frac{w(S)}{2}$. Kdyby nyní platilo $w(S_{>x_t})>\frac{w(S)}{2}$, dostali bychom
+$$w(S)=w(S_{<x_t})+w(x_t)+w(S_{>x_t})>\frac{w(S)}{2}+\frac{w(S)}{2}=w(S),$$
+což je spor. Proto musí být $w(S_{>x_t})\leq\frac{w(S)}{2}$, tedy $x_t$ je rovnovážný prvek $S$.\\
+
+Je také vidět, že rovnovážným prvkem jednoprvkové množiny je onen jeden prvek a rovnovážným prvkem dvouprvkové množiny je ten z jejích prvků, jehož váha je větší nebo rovna váze toho druhého (neboť platí $W[i]\leq \frac{W[i]+W[j]}{2}$ právě tehdy, když $W[i]\leq W[j]$).\\
+%(Snadno lze také ukázat, že obecně rovnovážné prvky $S$ existují nejvýše dva, a pokud existují dva, nacházejí se v uspořádání podle hodnot vedle sebe. To však nebudeme potřebovat.)\\
+
+Dále ověříme, že funkce $BALANCED(V,W,l,r)$ (pro $l\leq r$) vždy vrací hodnotu rovnovážného prvku množiny $S'$, která vznikne z množiny $S$ po odstranění $1,2,\dots,l-1$-tého a $r+1,r+2,\dots,n$-tého prvku. Odtud bude zejména plynout, že $BALANCED(V,W,1,n)$ řeší naši úlohu. Konečnost výpočtu plyne z faktu, že každý z dílčích cyklů je konečný, a pro každé rekurzivní volání funkce BALANCED platí, že rozdíl posledního a předposledního argumentu je nezáporný a ostře nižší, než v předchozím volání (jak bude lépe patrné níže), a v případě, že je tento rozdíl $0$ nebo $1$, funkce skončí díky řádkům 2-7.\\
+
+Pokud $0<|S'|\leq 2$, platí $r=l$, nebo $r=l+1$. Oba tyto případy jsme už diskutovali výše, a je vidět, že funkce BALANCED na řádcích 2-7 přesně odráží závěry, ke kterým jsme došli. Dále tedy předpokládejme, že tvrzení je pravdivé pro všechny množiny kardinality menší než $|S'|\geq 3$, a ukážeme, že pak platí i pro $S'$. 
+Za tohoto předpokladu se podmínky na řádcích 2 a 4 neprovedou, takže pokračujeme dále. Nejprve na řádcích 8-10 do proměnné sum uložíme hodnotu $w(S')$ a poté na řádku 11 přeskupíme všechny hodnoty prvků $S'$ tak, že na $x=\lceil\frac{r-l+1}{2}\rceil$)-té pozici bude ležet jejich medián $m$, vlevo od něj ty menší a vpravo od něj ty větší. Jinými slovy bude platit $$S'_{<m}=\{V[l],V[l+1],\dots,V[\lceil\frac{r-l+1}{2}\rceil]\}$$ a $$S'_{>m}=\{V[\lceil\frac{r-l+1}{2}\rceil],V[\lceil\frac{r-l+1}{2}\rceil+1]\dots,V[r]\}.$$ Zároveň se přitom adekvátně přeuspořádají i váhy, takže o celé operaci můžeme uvažovat jen jako o permutaci prvků $S'$. Díky tomu výpočet na řádcích 12-18 uloží do proměnné $lsum$ hodnotu $w(S'_{<m})$ a do proměnné $rsum$ hodnotu $w(S'_{>m})$. Nyní mohou nastat tři možnosti (které jsou disjunktní, neboť díky kladnosti vah nemůže zároveň platit $w(S'_{<x})>\frac{w(S')}{2}$ a $w(S'_{>x})>\frac{w(S')}{2}$ (jinak $w(S')>w(S'_{<x})+w(S'_{>x})>w(S')$, spor):
+\begin{enumerate}[I.]
+\item $w(S'_{<x})\leq\frac{w(S')}{2}$ a zároveň $w(S'_{>x})\leq\frac{w(S')}{2}$:\\
+V tomto případě je podle definice $x$ rovnovážným prvkem $S'$, takže vrátíme $V[x]$.
+\item $w(S'_{<x})>\frac{w(S')}{2}$:\\
+V tomto případě je díky kladnosti vah a faktu, že všechny prvky s hodnotou menší než $V[x]$ mají v poli $V$ nižší index, jasné, že hodnota rovnovážného prvku $S'$ se nemůže v poli $V$ nacházet na žádném z indexů $x,x+1,\dots,r$. Protože už víme, že rovnovážný prvek $S'$ existuje, musí se tedy jeho hodnota v poli $V$ nacházet na jednom z indexů $l,\dots,x-1$ (všimněme si, že $x-1\geq l$), neboť $S'_{<m}\neq \emptyset$). Nyní si stačí uvědomit, že jediná informace, kterou o prvcích s hodnotami $V[x],V[x+1],\dots,V[r]$ budeme nadále potřebovat, je součet jejich vah. Proto na ně můžeme nadále zapomenout a \uv{reprezentovat} je pouze prvkem s hodnotou $V[x]$, tj. přičíst k jeho váze $w(S'_{<m})$, %a následně množinu $(S'_{<m}$ odstranit
+ díky čemuž bude celkový součet vah prvků s hodnotami $V[l],\dots, V[x-1]$ stejný, jako byl na začátku volání funkce celkový součet vah prvků s hodnotami $V[l],\dots, V[r]$. Je jasné, že touto operací jsme nijak neovlivnili hodnotu, váhu ani pozici rovnovážného prvku, neboť neleží v množině $\{m\}\cup S'_{<m}$. Proto jsme tímto náš problém redukovali na stejný problém pro množinu s ostře nižší kardinalitou (díky předpokladu $|S'|\geq 3$ jsme totiž přišli o $$|S'_{>m}|=|S'|-\lceil \frac{|S'|}{2}\rceil=\lfloor \frac{|S'|}{2}\rfloor\geq 1$$ prvků), takže můžeme zavolat BALANCED($V,W,l,x$) a dle indukčního předpokladu jsme hotovi.
+\item $w(S'_{>x})>\frac{w(S')}{2}$:
+Argumentace je zde zcela analogická případu II, až na to, že při novém volání funkce BALANCED tentokrát přijdeme o $$|S'_{<m}|=\lceil \frac{|S'|}{2}\rceil-1\geq 1$$ prvků (což je přesně důvod, proč jsme museli ošetřit situaci $|S'|=2$ zvlášť), takže opět problém zredukujeme na problém s množinou ostře nižší kardinality.
+Tím je důkaz korektnosti u konce.\\
+
+Nakonec zkoumejme časovou složitost funkce $BALANCED(V,W,1,n)$, kterou označíme $T(n)$. Pak z řádků 2-7 plyne $T(1),T(2)\in\mathcal{O}(1)$. Dále složitost řádků 8-18 je zřejmě lineární vůči $n$ a vzhledem k tomu, že $x=\lceil \frac{r-l+1}{2}\rceil$, můžeme pro $n\geq 3$ psát
+$$T(n)=T(\frac{n}{2})+f(n),$$ kde $f(n)\in\mathcal{O}(n)$. Protože $1<2^1$, podle Master Theoremu odtud plyne $T(n)\in\mathcal{O}(n)$, což jsme přesně potřebovali. 
+\end{enumerate}
+
+\end{document}

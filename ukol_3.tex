@@ -1,0 +1,113 @@
+\documentclass[12pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[czech]{babel}
+\usepackage{a4wide}
+\usepackage{amsmath, amsthm, amsfonts, amssymb, graphicx, url, fancyhdr,multicol,enumerate,titling}
+\usepackage{algpseudocode}
+\usepackage[]{algorithm2e}
+\usepackage{listings}
+\theoremstyle{plain}
+\newtheorem{thm}{Theorem} %[section]
+\newtheorem{lemma}[thm]{Lemma}
+
+\lstdefinelanguage{algpseudocode}{
+  keywordstyle=[1]{\keywordstyle},
+  keywordstyle=[2]{\operatorstyle},
+  keywordstyle=[3]{\typestyle},
+  keywordstyle=[4]{\functionstyle},
+  identifierstyle={\identifierstyle},
+  keywords=[1]{%
+    begin,end,%
+    program,procedure,function,subroutine,%
+    while,do,for,to,next,repeat,until,loop,continue,endwhile,endfor,endloop,%
+    if,then,else,endif,%
+    return},
+  literate={-}{$-$}1 {^}{$^\wedge$}1
+           {>}{{$>$\ }}1 {<}{{$<$\ }}1
+           {>=}{{$\geqslant$\ }}1 {<=}{{$\leqslant$\ }}1
+           {:=}{{$\gets$\ }}1 {!=}{{$\ne$\ }}1 {<>}{{$\ne$\ }}1
+           {->}{{$\;\to\;$}}1
+           {&&}{{\keywordstyle and\ }}4 {{||}}{{\keywordstyle or\ }}3
+           {;}{\hspace{0.2em};}2 {,}{\hspace{0.2em},}2,
+}
+
+\lstset{%
+  language={algpseudocode},
+  columns=fullflexible,
+  numbers=left,
+  numberstyle=\scriptsize,
+}
+
+\newcommand\keywordstyle{\rmfamily\bfseries\upshape}
+\newcommand\operatorstyle{\rmfamily\mdseries\upshape}
+\newcommand\typestyle{\rmfamily\mdseries\upshape}
+\newcommand\functionstyle{\rmfamily\mdseries\scshape}
+
+\newcommand\identifierstyle{\rmfamily\mdseries\itshape}
+
+\newcommand\addkeywords[1]{%
+  \lstset{morekeywords=[1]{#1}}}
+
+\newcommand\addoperators[1]{%
+  \lstset{morekeywords=[2]{#1}}}
+
+\newcommand\addtypes[1]{%
+  \lstset{morekeywords=[3]{#1}}}
+
+\newcommand\addfunctions[1]{%
+  \lstset{morekeywords=[4]{#1}}}
+
+\newcommand{\Z}{\mathbb{Z}}
+\newcommand{\N}{\mathbb{N}}
+
+\begin{document}
+\pagestyle{fancy}                      %Pro větší­ možnosti práce se záhlaví­mi a zápatími
+\fancyhf{}                             %"vyčištění záhlaví a zápatí"
+%\renewcommand{\headheight}{25 pt}                  %
+\addtolength{\topmargin}{-30 pt}                   %
+\setlength{\headsep}{10 pt}                      %
+\fancyhead[L]{{\emph{IV003 - sada 2, příklad 3}}}  %
+\fancyhead[R]{{\emph{Jan Plhák (UČO 408420), Vladimír Sedláček (UČO 408178)}}}                  % Nastavení­ pro titulní­ stranu
+%\fancyfoot[L]{Školní rok 2009/2010}                %
+%\renewcommand{\footrulewidth}{0.8 pt}              %
+\renewcommand{\headrulewidth}{1 pt}                %               %
+
+%\addfunctions{opt}
+Budeme používat čtyřrozměrné pole $opt$, kde každý z jeho indexů bude probíhat od $0$ do $\frac{N}{4}$ včetně. Na začátku toto pole inicializujeme tak, aby všechny hodnoty v něm byly nulové. Nyní uvažme následující funkci:
+
+\begin{lstlisting}[mathescape]
+function sale
+ if $4\nmid N$ OR N\leq 0
+   then return "Prirazeni neexistuje."
+ opt$[1][0][0][0]$:=$C[1,1]$
+ opt$[0][1][0][0]$:=$C[1,2]$
+ opt$[0][0][1][0]$:=$C[1,3]$
+ opt$[0][0][0][1]$:=$C[1,4]$   
+ for $m=2,\dots,N$
+   for $i=0,\dots,\min(m-1,\frac{N}{4})$
+     for $j=0,\dots,\min(m-1-i,\frac{N}{4})$
+       for $k=0,\dots,\min(m-1-i-j,\frac{N}{4})$
+         $l$:=$m-1-i-j-k$
+         if $l\leq \frac{N}{4}$
+          if $i+1\leq \frac{N}{4}$ AND $opt[i][j][k][l]+C[m,1]>opt[i+1][j][k][l]$ 
+            then $opt[i+1][j][k][l]$:=$opt[i][j][k][l]+C[m,1]$
+          if $j+1\leq \frac{N}{4}$ AND $opt[i][j][k][l]+C[m,2]>opt[i][j+1][k][l]$ 
+            then $opt[i][j+1][k][l]$:=$opt[i][j][k][l]+C[m,2]$
+          if $k+1\leq \frac{N}{4}$ AND $opt[i][j][k][l]+C[m,3]>opt[i][j][k+1][l]$ 
+            then $opt[i][j][k+1][l]$:=$opt[i][j][k][l]+C[m,3]$
+          if $l+1\leq \frac{N}{4}$ AND $opt[i][j][k][l]+C[m,4]>opt[i][j][k][l+1]$ 
+            then $opt[i][j][k][l+1]$:=$opt[i][j][k][l]+C[m,4]$     
+ return $ opt[\frac{N}{4}][\frac{N}{4}][\frac{N}{4}][\frac{N}{4}] $
+\end{lstlisting}
+
+Navíc pokaždé, když na některém z řádků 15,17,19,21 dojde k aktualizaci nějakého multiindexu pole $opt$, budeme si v něm držet také ukazatel na ten multiindex, díky kterému k aktualizaci došlo (tj. např. při aktualizaci na řádku 15 si v $opt[i+1][j][k][l]$ budeme držet také ukazatel na $opt[i][j][k][l]$). Díky tomu pak budeme schopni hodnotu $ opt[\frac{N}{4}][\frac{N}{4}][\frac{N}{4}][\frac{N}{4}]$ postupně zrekonstruovat jako součet prvků matice $C$, kde z každého řádku vybereme právě jeden prvek (což bude lépe patrné po argumentaci níže), čímž jednoznačně určíme zobrazení $p$.\\
+
+Z omezeného počtu kroků ve for cyklech a nepřítomnosti rekurze plyne, že výpočet algoritmu bude vždy konečný. Dále budeme uvažovat pouze kladná $N$ dělitelná čtyřmi (což je ve funkci sale odraženo na řádcích 2-3). V dalším odstavci ukážeme, že pro $0\leq i,j,k,l\leq \frac{N}{4}$ je hodnota $opt[i][j][k][l]$ vždy maximálním možným ziskem při prodeji prvních $i+j+k+l$ aut tak, že $i$ jich bude prodáno do prvního autosalonu, $j$ do druhého, $k$ do třetího a $l$ do čtvrtého. Odtud bude zejména plynout, že $opt[\frac{N}{4}][\frac{N}{4}][\frac{N}{4}][\frac{N}{4}]$ je maximální možný zisk, kterého může pan Skladník za podmínek v zadání dosáhnout. Ještě předtím si uvědomme, že (pro pevné $2\leq m\leq N$) na řádcích 9-21 vždy uvážíme všechny možnosti, jak zapsat $m-1$ jako součet $i+j+k+l$, kde $0\leq i,j,k,l\leq \frac{N}{4}$ (nerovnost $0\leq l$ plyne z $k\leq m-1-i-j$), a pro každou z těchto možností zkusíme postupně přidat $m$-té auto do všech autosalonů a podíváme se, zda jsme si polepšili oproti nejlepšímu dosavadnímu rozdělení s takovýmito počty aut. Vždy navíc ještě hlídáme, aby do žádného autosalonu nebylo prodáno více než $\frac{N}{4}$ aut.\\
+
+Pro $i+j+k+l=1 (\leq \frac{N}{4})$ při optimálním výběru umisťujeme pouze jedno auto, což odpovídá pouze výběru jednoho ze čtyř autosalonů. To je přesně odraženo na řádcích 4-7, takže tvrzení platí (využíváme zde toho, že všechny prodejní ceny jsou kladné). Dále tedy mějme $2\leq i+j+k+l$ pro nějaká $0\leq i,j,k,l\leq \frac{N}{4}$ a uvažme optimální způsob, jak je prodat s tím, že $i$ jich bude prodáno do prvního autosalonu, $j$ do druhého, $k$ do třetího a $l$ do čtvrtého. Prodej posledního auta (tj. s nejvyšším pořadovým číslem) zřejmě mohl proběhnout pouze čtyřmi možnostmi, takže jsme předtím museli být v jednom ze stavů $[i-1][j][k][l]$, $[i][j-1][k][l]$, $[i][j][k-1][l]$, $[i][j][k][l-1]$ (kdykoli jsou indexy nezáporné) v našem obvyklém významu. Tento stav ovšem musel také být optimální, jinak bychom ho mohli nahradit tím optimálním, čímž bychom zlepšili i hodnotu řešení pro $[i][j][k][l]$, o které jsme předpokládali, že je optimální. Proto každé oprtimální řešení můžeme získat z optimálního řešení s hodnotou $i+j+k+l$ o jedna nižší, takže pomocí indukce dostáváme dokazované tvrzení. Navíc je vidět, že po skončení algoritmu bude každý multiindex (kromě těch se součtem indexů 1) pole $opt$ ukazovat na multiindex pole $opt$ s o jedna nižším součtem indexů, který bude odpovídat optimálnímu řešení, skrz kterého jsme došli k tomu \uv{většímu}. Proto bude i finální rekonstrukce zobrazení $p$ korektní.\\
+
+Nakonec se podívejme na složitost. Pole $opt$ obsahuje celkem $(1+\frac{N}{4})^4$ hodnot, proto jeho počáteční inicializace proběhne v $\mathcal{O}(N^4)$. Navíc je jasné, že všechny příkazy na řádcích 4-7 i 12-21 (včetně ukládání si ukazatelů) probíhají v konstantním čase, a protože každý ze čtyř for cyklů ma vůči $N$ lineární délku, bude funkce sale běžet v čase $\mathcal{O}(N^4)$. K finální rekonstrukci pak potřebujeme projít nejvýše $N$ ukazatelů, je tedy v $\mathcal{O}(N)$. Proto je celková složitost našeho algoritmu v $\mathcal{O}(N^4)$.
+
+
+\end{document}

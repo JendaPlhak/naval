@@ -1,0 +1,82 @@
+\documentclass[12pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[czech]{babel}
+\usepackage{a4wide}
+\usepackage{amsmath, amsthm, amsfonts, amssymb, graphicx, url, fancyhdr,multicol,enumerate,titling}
+\usepackage{algpseudocode}
+\usepackage[]{algorithm2e}
+\usepackage{listings}
+\theoremstyle{plain}
+\newtheorem{thm}{Theorem} %[section]
+\newtheorem{lemma}[thm]{Lemma}
+
+\lstdefinelanguage{algpseudocode}{
+  keywordstyle=[1]{\keywordstyle},
+  keywordstyle=[2]{\operatorstyle},
+  keywordstyle=[3]{\typestyle},
+  keywordstyle=[4]{\functionstyle},
+  identifierstyle={\identifierstyle},
+  keywords=[1]{%
+    begin,end,%
+    program,procedure,function,subroutine,%
+    while,do,for,to,next,repeat,until,loop,continue,endwhile,endfor,endloop,%
+    if,then,else,endif,%
+    return},
+  literate={-}{$-$}1 {^}{$^\wedge$}1
+           {>}{{$>$\ }}1 {<}{{$<$\ }}1
+           {>=}{{$\geqslant$\ }}1 {<=}{{$\leqslant$\ }}1
+           {:=}{{$\gets$\ }}1 {!=}{{$\ne$\ }}1 {<>}{{$\ne$\ }}1
+           {->}{{$\;\to\;$}}1
+           {&&}{{\keywordstyle and\ }}4 {{||}}{{\keywordstyle or\ }}3
+           {;}{\hspace{0.2em};}2 {,}{\hspace{0.2em},}2,
+}
+
+\lstset{%
+  language={algpseudocode},
+  columns=fullflexible,
+  numbers=left,
+  numberstyle=\scriptsize,
+}
+
+\newcommand\keywordstyle{\rmfamily\bfseries\upshape}
+\newcommand\operatorstyle{\rmfamily\mdseries\upshape}
+\newcommand\typestyle{\rmfamily\mdseries\upshape}
+\newcommand\functionstyle{\rmfamily\mdseries\scshape}
+
+\newcommand\identifierstyle{\rmfamily\mdseries\itshape}
+
+\newcommand\addkeywords[1]{%
+  \lstset{morekeywords=[1]{#1}}}
+
+\newcommand\addoperators[1]{%
+  \lstset{morekeywords=[2]{#1}}}
+
+\newcommand\addtypes[1]{%
+  \lstset{morekeywords=[3]{#1}}}
+
+\newcommand\addfunctions[1]{%
+  \lstset{morekeywords=[4]{#1}}}
+
+\newcommand{\Z}{\mathbb{Z}}
+\newcommand{\N}{\mathbb{N}}
+
+\begin{document}
+\pagestyle{fancy}                      %Pro větší­ možnosti práce se záhlaví­mi a zápatími
+\fancyhf{}                             %"vyčištění záhlaví a zápatí"
+%\renewcommand{\headheight}{25 pt}                  %
+\addtolength{\topmargin}{-30 pt}                   %
+\setlength{\headsep}{10 pt}                      %
+\fancyhead[L]{{\emph{IV003 - sada 2, příklad 1}}}  %
+\fancyhead[R]{{\emph{Jan Plhák (UČO 408420), Vladimír Sedláček (UČO 408178)}}}                  % Nastavení­ pro titulní­ stranu
+%\fancyfoot[L]{Školní rok 2009/2010}                %
+%\renewcommand{\footrulewidth}{0.8 pt}              %
+\renewcommand{\headrulewidth}{1 pt}                %               %
+
+\begin{enumerate}
+\item Na protipříkladu ukážeme, že zadaný algoritmus není korektní. Uvažme množinu $A=\{-\frac{5}{4},-\frac{1}{2},-\frac{1}{4},\frac{1}{4},\frac{1}{2},\frac{5}{4}\}$. Pak (prostým projitím možností) platí, že interval $[-\frac{1}{2},\frac{1}{2}]$ pokrývá největší počet bodů z $A$ ze všech jednotkových intervalů. Algoritmus ho proto přidá do $S$ a z $A$ se stane množina $\{-\frac{5}{4},\frac{5}{4}\}$. Tyto dva body však nelze pokrýt jediným jednotkovým intervalem, proto je daný algoritmus postupně ve dvou krocích pokryje dvěma různými intervaly (navíc žádný z nich zřejmě nebude $[-\frac{1}{2},\frac{1}{2}]$). Výstupem algoritmu tedy bude množina $S$, která bude obsahovat tři různé jednotkové intervaly. Původní množina $A$ ovšem lze pokrýt intervaly $[-\frac{5}{4},-\frac{1}{4}]$ a $[\frac{1}{4},\frac{5}{4}]$. Zadaný algoritmus tedy vrátil tři intervaly místo optimálních dvou, takže není korektní.
+
+\item Ukážeme, že zadaný algoritmus je korektní (s tím, že všechny použité intervaly považujeme za uzavřené). Nechť na konci běhu algoritmu množina $S$ obsahuje intervaly $[a_{j_1},a_{j_1}+1],\dots,[a_{j_k},a_{j_k}+1]$. Potom z konstrukce algoritmu plyne, že pro libovolné $l,m\in\{1,\dots,k\},l\neq m$ platí $|a_{j_l}-a_{j_m}|>1$ (pokud by platilo $|a_{j_l}-a_{j_m}|\leq 1$ a např. $a_{j_l}\leq a_{j_m}$, byl by bod $a_{j_m}$ pokryt intervalem $[a_{j_l},a_{j_l}+1]$, takže by v průběhu algoritmu byl odstraněn z $A$ ve stejném kroku jako $a_{j_l}$, tudíž by se nikdy nemohl stát nejmenším aktuálním bodem $S$ a nemohl by tak nakonec být krajním bodem intervalu z $S$). Jinými slovy $A$ obsahuje $k$ bodů, z nichž žádné dva nelze současně pokrýt jednotkovým intervalem. Proto není možné $A$ pokrýt méně než $k$ intervaly, takže zadaný algoritmus, který ho pokryl $k$ intervaly, našel nejlepší řešení, a tedy je korektní. Jeho časová složitost je zřejmě $\mathcal{O}(n)$, protože na každý bod se díváme právě dvakrát (poprvé ho buď používáme jako krajní bod aktuálního intervalu, nebo testujeme, zda do aktuálního intervalu patří; a podruhé ho odstraňujeme z $A$) a do $S$ celkově přidáme nejvýše $n$ intervalů.
+\end{enumerate}
+
+\end{document}

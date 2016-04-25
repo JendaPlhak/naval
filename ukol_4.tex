@@ -77,26 +77,38 @@
 
 \addfunctions{min_path}
 
-První pozorování, které můžeme v případě čtvrtého příkladu učinit, je skutečnost, že pokud máme nějaký vrchol daného stromu T, tak abychom jej obsloužili na co nejmenší počet iterací stačí uspořádat jeho syny podle toho, kolik který z nich potřebuje iterací na to, aby byl celý jeho podstrom obsloužen a následně posílat synům zprávy v tomto pořadí. Skutečně - předpokládejme, že pro nějaké dva syny $ v, w$  platí $ \operatorname{ord}(v) < \operatorname{ord}(w) $ a zároveň $ \It(v) < \It(w) $, kde $ \operatorname{ord} $ značí pořadové číslo iterace, ve které jsme do daného uzlu poslali zprávu a $ \It $ značí počet iterací nezbytných k obsloužení daného syna. Pak ale prohozením pořadí, tedy zasláním zprávý prvně do náročnějšího vrcholu $ w $, a až pak do jednoduššího vrcholu $ v $, může celkový počet iterací zůstat buďto stejný nebo se zmenší, neboť iterace po které budou oba podstromy $ v $ a $ w $ obslouženy bude nyní $ it\_complete(v, w) = \min\{it\_complete(v), it\_complete(w) \} $, přičemž ale iterace ve které bude obsloužen podstrom $ v $ bude menší než před změnou pořadí iterace obsloužení podstromu $ w $ a samozřejmě také iterace ve které bude obsloužen podstrom $ w $ v novém pořadí se nemůže zvětšit, neboť do něj posíláme zprávu dříve. Proto Jakékoliv jiné pořadí než naše uspořádání bude stejně dobré, nebo horší.
+První pozorování, které můžeme v případě tohoto příkladu učinit, je skutečnost, že pokud máme nějaký vrchol daného stromu T, tak abychom jej obsloužili na co nejmenší počet iterací, stačí uspořádat jeho syny podle toho, kolik který z nich potřebuje iterací na to, aby byl celý jeho podstrom obsloužen a následně posílat synům zprávy v tomto pořadí. Skutečně - předpokládejme, že pro nějaké dva syny $ v, w$  platí $ \operatorname{ord}(v) < \operatorname{ord}(w) $ a zároveň $ \It(v) < \It(w) $, kde $ \operatorname{ord} $ značí pořadové číslo iterace, ve které jsme do daného uzlu poslali zprávu a $ \It $ značí počet iterací nezbytných k obsloužení daného syna. Pak ale prohozením pořadí, tedy zasláním zprávý prvně do náročnějšího vrcholu $ w $, a až pak do jednoduššího vrcholu $ v $, může celkový počet iterací zůstat buďto stejný, nebo se zmenší, neboť iterace, po které budou oba podstromy $ v $ a $ w $ obslouženy, bude nyní $ it\_complete(v, w) = \min\{it\_complete(v), it\_complete(w) \} $, přičemž ale iterace, ve které bude obsloužen podstrom $ v $, bude menší než před změnou pořadí iterace obsloužení podstromu $ w $, a samozřejmě také iterace, ve které bude obsloužen podstrom $ w $ v novém pořadí, se nemůže zvětšit, neboť do něj posíláme zprávu dříve. Proto jakékoliv jiné pořadí než naše uspořádání bude stejně dobré, nebo horší.\\
+
+Pro každý vrchol $ v $ tedy potřebujeme znát hodnotu funkce $ \It $. Je-li $ v $ list, bude zřejmě platit $ \It(v) = 0 $. Jinak definujeme $ \It(v) = \max\limits_{u \in children(v)}\{\It(u)\} + \operatorname{extra}(v) + 1$, kde funkci $ \operatorname{extra} $ popisuje následující pseudokód.
 
 
-Pro každý vrchol $ v $ tedy potřebujeme znát hodnotu funkce $ \It $. Pro $ v $ je list bude zřejmě platit $ \It(v) = 0 $. Jinak definujeme $ \It(v) = \max\limits_{u \in children(v)}\{\It(u)\} + \operatorname{extra}(v) + 1$, kde funkci $ \operatorname{extra} $ popisuje následující pseudokód.
+%\begin{lstlisting}[mathescape]
+%function $ \operatorname{extra} $(v)
+%  iterations := $ \{ \It(u) \mid u \in children(v) \}$ sorted descending 
+%  extra := 0 
+%  buffer := 0 
+%  for $i=2,\dots,|iterations| $ 
+%    buffer $\mathrel{+}= iterations[i - 1] - iterations[i]$
+%    if buffer = 0:
+%      extra $\mathrel{+}= 1 $
+%    else:
+%      buffer $\mathrel{-}= 1 $
+%  return extra
+%\end{lstlisting}
 
 \begin{lstlisting}[mathescape]
 function $ \operatorname{extra} $(v)
   iterations := $ \{ \It(u) \mid u \in children(v) \}$ sorted descending 
-  extra := 0 
-  buffer := 0 
-  for $i=2,\dots,|iterations| $ 
-    buffer $\mathrel{+}= iterations[i - 1] - iterations[i]$
-    if buffer = 0:
-      extra $\mathrel{+}= 1 $
-    else:
-      buffer $\mathrel{-}= 1 $
+  extra := 0
+  for $i=2,\dots,|iterations| $
+    if $iterations [ i ] > iterations[ 1 ]-i+1$
+       extra:=max{extra, $iterations [ i ] - (iterations[ 1 ]-i+1)$}
   return extra
 \end{lstlisting}
 
-Vzhledem k výše uvedenému pozorování chceme tuto hodnotu efektivně spočítat pro každý vrchol. S využitím principů dynamického programování se dá nahlédnout, že abychom nic nemuseli počítat dvakrát, tak stačí daný strom procházet tak, abychom vždy nejprve vypočítali hodnoty $ \It $ pro všechny syny a až pak počítali jejich otce. Takovýmto procházením může být například procházení do hloubky a navštěvování vrcholů post-order. Proto algoritmus, který efektivně spočítá $ \It $ pro všechny vrcholy stromu $ T $  může vypadat například takto:
+(V naší implementaci vypadá funkce extra trochu jinak, ale je ekvivalentní této.)\\
+
+Vzhledem k výše uvedenému pozorování chceme tuto hodnotu efektivně spočítat pro každý vrchol. S využitím principů dynamického programování se dá nahlédnout, že abychom nic nemuseli počítat dvakrát, tak stačí daný strom procházet tak, abychom vždy nejprve vypočítali hodnoty $ \It $ pro všechny syny a až pak počítali jejich otce. Takovýmto procházením může být například procházení do hloubky a navštěvování vrcholů post-order. Proto algoritmus, který efektivně spočítá $ \It $ pro všechny vrcholy stromu $ T $ , může vypadat například takto:
 
 \begin{lstlisting}[mathescape]
 function $ \operatorname{compute\_it} $(T)
@@ -107,11 +119,20 @@ function $ \operatorname{compute\_it} $(T)
       $ \It(v) = \max\limits_{u \in children(v)}\{\It(u)\} + \operatorname{extra}(v) + 1$
 \end{lstlisting}
 
-V každém vrcholu tím máme k dispozici počet iterací nezbytný pro obsloužení každého ze synů. Zprávy pak budeme synům posílat v sestupném uspořádání synů podle počtu nezbytných iterací.
+V každém vrcholu tím máme k dispozici počet iterací nezbytný pro obsloužení každého ze synů. Zprávy pak budeme synům posílat v sestupném uspořádání synů podle počtu nezbytných iterací.\\
 
-Z konečnosti prohledávání do hloubky a nepřítomnosti rekurze vyplývá, že uvedený algoritmus bude vždy konečný. K důkazu korektnosti proto stačí ukázat, že způsob, jakým počítáme $ \It(u) $ je korektní. Pokud je $ u $ list, pak je tvrzení zřejmé. Předpokládejme tedy, že $ u $ není list. Pokud má $ u $ jen jednoho potomka, pak formule funguje bezvadně neboť budeme potřebovat jednu iteraci na zaslání zprávy potomkovi + $ \It(child(u)) $ iterací na vyřízení potomka. Předpokládejme proto, že formule funguje pokud má $ u $ nejvýše $ n $ potomků a ukážeme, že pak musí fungovat také pokud jich má $ n + 1 $. 
+Z konečnosti prohledávání do hloubky a nepřítomnosti rekurze vyplývá, že uvedený algoritmus bude vždy konečný. K důkazu korektnosti proto stačí ukázat, že způsob, jakým počítáme $ \It(v) $, je korektní. Pokud je $ v $ list, pak je tvrzení zřejmé. Předpokládejme tedy, že $ v $ není list. Položme $iterations :=  \{ \It(u) \mid u \in children(v) \}$ sorted descending, tak jako na řádku 2 funkce extra.  Podle počátečního pozorování už víme, že nejefektivnější je poslat zprávu všech synům v sestupném uspořádání podle počtu nezbytných iterací. Proto nejprve pošleme zprávu tomu s nejvyšším počtem iterací, což nás bude stát jednu iteraci. Za dalších $iterations[1]$ iterací pak zprávu obdrží celý podstrom tohoto syna. Zbývá tedy ukázat, že po $iterations[1]+1$ iteracích bude potřebných ještě $extra(u)$ iterací, aby zprávu obdržel celý podstrom $u$. Dále budeme bez újmy na obecnosti předpokládat, že $iterations[1]\geq |iterations|$ (pokud by to nebyla pravda, mohli bychom každé číslo $iterations[1]$ zvýšit o stejnou dostatečně velkou konstantu $c$, tím by se $It(v)$ i $\max\limits_{u \in children(v)}\{\It(u)\}$ zvýšilo o $c$ a extra($v$) by se skutečně nezměnilo, neboť rozdíly $iterations[i]-iterations[1]$ by zůstaly stejné). Díky tomu, v jakém pořadí zprávy posíláme, je potom jasné, že během těchto $iterations[1]+1$ iterací zpracuje podstrom $i$-tého syna $v$ právě $iterations[1]+1-i\geq 1$ iterací z $iterations[i]$ nutných (pro všechna $i\in{1,\dots,|iterations|}$). Protože vrchol $v$ už potom žádné další zprávy posílat nemusí (a tudíž se další zprávy šíří \uv{paralelně}), od tohoto okamžiku potřebujeme ještě dalších $\max\limits_{u \in children(v)}\{iterations[i]-(iterations[1]+1-i)\}$ iterací, aby podstromy všech synů $v$ obdržely zprávy. Je ale vidět, že přesně tuto hodnotu počítá funkce extra, takže jsme hotovi a celý agoritmus je korektní.\\
 
-Nechť má tedy $ |children(u)| = n+1 $ a mějme $ x \in children(u) $, takový, že $ \It(x) = \min\limits_{y \in children(u)}\{\It(y)\} $. Dále označme $ k $ hodnotu funkce $ It(u) $, pokud bychom potomka $ x $ při výpočtu zcela ignorovali. Díky indukčnímu předpokladu tím získáme minimální počet iterací, který musíme vykonat aby se zprávy dostaly ke všem potomkům výjma $ x $. Zřejmě na hodnotu maxima počítaného maxima nemá nepřítomnost prvku $ x $ žádný vliv, přičtení jedničky je konstantní a tak jedině výpočet funkce $ extra(u) $ se může nějakým způsobem lišit. Zkoumejme tedy, jaký vliv má vrchol $ x $ na její hodnotu.  
+%Pokud je $ u $ list, pak je tvrzení zřejmé. Předpokládejme tedy, že $ u $ není list. Pokud má $ u $ jen jednoho potomka, pak formule funguje bezvadně, neboť extra($u$)$=0$ (for cyklus na řádcích 5-10 bude prázdný), a skutečně budeme potřebovat jednu iteraci na zaslání zprávy potomkovi plus $ \It(child(u)) $ iterací na vyřízení potomka. Předpokládejme proto, že formule funguje, pokud má $ u $ nejvýše $ l $ potomků a ukážeme, že pak musí fungovat také v případě, že jich má $ l + 1 $. \\
 
-Ty poslední dva odstavce asi nejsou moc dobře, musel jsem pak ještě předělat tu funkci extra, tak to bude chtít asi upravit :-/
+%Nechť má tedy $ |children(u)| = l+1 $ a mějme $ x \in children(u) $, takový, že $ \It(x) = \min\limits_{y \in children(u)}\{\It(y)\} $. Dále označme $ k $ hodnotu funkce $ It(u) $, pokud bychom potomka $ x $ při výpočtu zcela ignorovali. Díky indukčnímu předpokladu tím získáme minimální počet iterací, který musíme vykonat aby se zprávy dostaly ke všem potomkům výjma $ x $. Zřejmě na hodnotu maxima počítaného maxima nemá nepřítomnost prvku $ x $ žádný vliv, přičtení jedničky je konstantní a tak jedině výpočet funkce $ extra(u) $ se může nějakým způsobem lišit. Zkoumejme tedy, jaký vliv má vrchol $ x $ na její hodnotu. \\
+
+Nakonec se podívejme na složitost. Procházení stromu do hloubky a navštěvování vrcholů post-order má časovou složitost v $\mathcal{O}(n)$, neboť každý vrchol navštívíme pouze konstantně mnohokrát.
+%Ověřit!!!
+ Výpočet hodnoty extra($v$) má složitost v $\mathcal{O}(|children(v)|),$ neboť operace na řádcích 6-10 jsou konstantní. Při výpočtu It($v$) v případě, že $v$ není vrchol, nejprve seřadíme všech $|children(v)|$ synů $v$ podle jejich hodnot It (to musíme udělat, protože si toto seřazení budeme chtít pamatovat pro posílání zpráv) v čase $\mathcal{O}(|children(v)|\log (|children(v)|)$ , poté v konstantním čase najdeme toho s maximální hodnotou a v $\mathcal{O}(|children(v)|)$ spočítáme extra($v$). Celkový čas pro výpočet $It(v)$ proto bude nejvýše $\mathcal{O}(|children(v)|\log (|children(v)|)$. Protože zřejmě platí $\sum_{v\in T}|children(v)|=n-1<n$ a podle zadání vždy $|children(v)|\leq k$, dostáváme tak, že časová složitost funkce compute\_it(T) (včetně uspořádání pořadí synů pro posílání zpráv) bude nejvýše
+$$\mathcal{O}(\sum_{v\in T}|children(v)|\log (|children(v)|)\subseteq \mathcal{O}(\sum_{v\in T}|children(v)|\log k)\subseteq \mathcal{O}(n\log k).$$
+
+(Samotné posílání zpráv už nepovažujeme za část našeho algoritmu, ale je jasné, že by složitost nepokazilo, pokud poslání jedné zprávy probíhá v konstantním čase.)
+
+%Ty poslední dva odstavce asi nejsou moc dobře, musel jsem pak ještě předělat tu funkci extra, tak to bude chtít asi upravit :-/
 \end{document}

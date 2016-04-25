@@ -1,8 +1,8 @@
 #pragma once
 #include <algorithm>
-#include <vector>
 #include <iostream>
 #include <limits>
+#include <vector>
 #include <utility> // std::pair
 
 /// A Node class that represents the tree structure of the network.
