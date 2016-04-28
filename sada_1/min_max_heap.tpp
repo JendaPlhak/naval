@@ -65,12 +65,14 @@ MinMaxHeap<T>::deleteMin()
     if (m_min.size() == 0) {
         return std::numeric_limits<T>::min();
     }
+
+    T min = this->min();
     if (m_min.size() == 1 && m_max.size() == 0) {
-        return this->pop_tail();
+        this->pop_tail();
+        return min;
     }
 
-    T min = this->pop_tail();
-    m_min.front() = min;
+    m_min.front() = this->pop_tail();;
     this->heapify_down<Min<T>>(0);
 
 #ifndef DEBUG
@@ -86,12 +88,14 @@ MinMaxHeap<T>::deleteMax()
     if (m_min.size() == 0) {
         return std::numeric_limits<T>::max();
     }
+
+    T max = this->max();
     if (m_min.size() == 1) {
-        return this->pop_tail();
+        this->pop_tail();
+        return max;
     }
 
-    T max = this->pop_tail();
-    m_max.front() = max;
+    m_max.front() = this->pop_tail();
     this->heapify_down<Max<T>>(0);
 
 #ifndef DEBUG
