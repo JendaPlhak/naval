@@ -28,8 +28,7 @@ public:
     }
 };
 
-// A simple recursive function to check whether C is an interleaving of A and B
-bool jeSpojenim(std::string str, std::string pat1_str, std::string pat2_str)
+inline bool jeSpojenim(std::string str, std::string pat1_str, std::string pat2_str)
 {
     if (pat1_str.empty() && pat2_str.empty()) {
         return str.empty();

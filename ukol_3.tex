@@ -1,0 +1,123 @@
+\documentclass[12pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[czech]{babel}
+\usepackage{a4wide}
+\usepackage{amsmath, amsthm, amsfonts, amssymb, graphicx, url, fancyhdr,multicol,enumerate,titling}
+\usepackage{algpseudocode}
+\usepackage[]{algorithm2e}
+\usepackage{listings}
+\theoremstyle{plain}
+\newtheorem{thm}{Theorem} %[section]
+\newtheorem{lemma}[thm]{Lemma}
+
+\lstdefinelanguage{algpseudocode}{
+  keywordstyle=[1]{\keywordstyle},
+  keywordstyle=[2]{\operatorstyle},
+  keywordstyle=[3]{\typestyle},
+  keywordstyle=[4]{\functionstyle},
+  identifierstyle={\identifierstyle},
+  keywords=[1]{%
+    begin,end,%
+    program,procedure,function,subroutine,%
+    while,do,for,to,next,repeat,until,loop,continue,endwhile,endfor,endloop,%
+    if,then,else,endif,%
+    return},
+  literate={-}{$-$}1 {^}{$^\wedge$}1
+           {>}{{$>$\ }}1 {<}{{$<$\ }}1
+           {>=}{{$\geqslant$\ }}1 {<=}{{$\leqslant$\ }}1
+           {:=}{{$\gets$\ }}1 {!=}{{$\ne$\ }}1 {<>}{{$\ne$\ }}1
+           {->}{{$\;\to\;$}}1
+           {&&}{{\keywordstyle and\ }}4 {{||}}{{\keywordstyle or\ }}3
+           {;}{\hspace{0.2em};}2 {,}{\hspace{0.2em},}2,
+}
+
+\lstset{%
+  language={algpseudocode},
+  columns=fullflexible,
+  numbers=left,
+  numberstyle=\scriptsize,
+}
+
+\newcommand\keywordstyle{\rmfamily\bfseries\upshape}
+\newcommand\operatorstyle{\rmfamily\mdseries\upshape}
+\newcommand\typestyle{\rmfamily\mdseries\upshape}
+\newcommand\functionstyle{\rmfamily\mdseries\scshape}
+
+\newcommand\identifierstyle{\rmfamily\mdseries\itshape}
+
+\newcommand\addkeywords[1]{%
+  \lstset{morekeywords=[1]{#1}}}
+
+\newcommand\addoperators[1]{%
+  \lstset{morekeywords=[2]{#1}}}
+
+\newcommand\addtypes[1]{%
+  \lstset{morekeywords=[3]{#1}}}
+
+\newcommand\addfunctions[1]{%
+  \lstset{morekeywords=[4]{#1}}}
+
+\newcommand{\Z}{\mathbb{Z}}
+\newcommand{\N}{\mathbb{N}}
+\newcommand{\It}{\operatorname{It}}
+\newcommand{\ord}{\operatorname{ord}}
+
+\begin{document}
+\pagestyle{fancy}                      %Pro větší­ možnosti práce se záhlaví­mi a zápatími
+\fancyhf{}                             %"vyčištění záhlaví a zápatí"
+%\renewcommand{\headheight}{25 pt}                  %
+\addtolength{\topmargin}{-30 pt}                   %
+\setlength{\headsep}{10 pt}                      %
+\fancyhead[L]{{\emph{IV003 - sada 3, příklad 3}}}  %
+\fancyhead[R]{{\emph{Jan Plhák (UČO 408420), Vladimír Sedláček (UČO 408178)}}}                  % Nastavení­ pro titulní­ stranu
+%\fancyfoot[L]{Školní rok 2009/2010}                %
+%\renewcommand{\footrulewidth}{0.8 pt}              %
+\renewcommand{\headrulewidth}{1 pt}                %               %
+
+\addfunctions{is_interleave}
+
+V následujícím kódu budeme předpokládat, že zaindexování do proměnných - řetězců $pat1 $ a $ pat2 $ je cyklické, tedy $ pat1[i] := pat1[i \operatorname{\%} |pat1|] $ (podobně pro $pat2$), což se dá implementačně velmi snadno zařídit.
+
+
+\begin{lstlisting}[mathescape]
+function is_interleave(str, pat1, pat2)
+  if $|pat1| = |pat2| = 0$
+    return $|str| = 0$
+  if $|pat1| = 0$
+    swap($pat1, pat2$)
+  if $|pat2| = 0$
+    for $ 0 \leq i < |str|$
+      if $str[i] \neq pat1[i]$
+        return false
+    return true
+    
+  s := $|str| + 1$
+  IL := array of size $ s \times s $, all entries set $\textit{to}$ false
+  IL[0][0] := true
+  
+  for $ 1 \leq i < s $
+    IL[0][i] := IL[0][i-1] && pat2[i-1] = str[i-1]
+    IL[i][0] := IL[i-1][0] && pat1[i-1] = str[i-1]
+    
+  for $ 1 \leq i < s $ 
+    for $ 1 \leq j < s - i $ 
+      c := str[i + j - 1]
+      IL[i][j] := (IL[i-1][j] && pat1[i-1] = c) || (IL[i][j-1] && pat2[j-1] = c)
+      
+  for $0 \leq i < s$
+    if IL[i][size - 1 - i]
+      return true;
+  return false;
+\end{lstlisting}
+
+Vyšetříme korektnost uvedeného algoritmu. Z omezené délky všecy cyklů a nepřítomnosti rekurze plyne, že výpočet bude vždy konečný.
+
+Dále postupujme postupně a zkoumejme jednotlivé větve algoritmu. Pokud jsou oba vzory $ pat1 $ i $ pat2 $ prázdné řetězce, bude $ str $ jejich spojením jen pokud je sám také prázdný řetězec. Dále předpokládáme, že $ pat1 $ je neprázdný (pokud by byl náhodou prázdný, provedeme na řádku 5 swap a z podmínky na řádku 2 plyne, že poté musí být neprázdný). Nyní pokud je $ pat2 $ prázdný, bude $ str $ spojením vstupních vzorů jen pokud se jedná o repetici $ pat1 $. Přesně to vyšetří řádky 7-10. 
+
+Zbývá vyšetřit případ, kdy $ |pat1| \neq 0$ a $ |pat2| \neq 0 $. Tuto situaci řeší řádky 12-28. Pro pole $ IL $ dokážeme, že po tom, co navštívíme prvek $ IL[i][j] $ (na řádku 14, 17, 18 nebo 23), tak bude platit $ IL[i][j] = true \Leftrightarrow (str[0,\dots, i + j - 1]$ je prolnutím $ pat1[0,\dots,i - 1] $ a $ pat2[0,\dots,j - 1] $). Poznamenejme, že prolnutím míníme to stejné co spojením, pouze však pro řetězce konkrétní délky, bez opakování a výrazem $ pat1[0,\dots,i - 1] $ rozumíme repetici $ pat1 $ vhodné délky. Analogicky pro $ pat2 $. 
+Je zřejmé, že uvedený algoritmus každý prvek $ IL[i][j] $ nastaví právě jednou a také je zřejmé, ve které části algoritmu a ve které iteraci k tomu dojde. Vyšetřeme tedy postupně jednotlivé prvky.
+
+Pro $ IL[0][0] $ tvrzení zřejmě platí, neboť prázdný řetězec je repeticí spojením prázdných řetězců. Prvky $ IL[i][0] $ popisují situaci, kdy $ str $ je spojením prázdného řetězce a $ pat1 $. Naše ekvivalence se pro tento případ dá snadno dokázat indukcí díky tomu, že buďto je $ IL[i - 1][0] = false $ a proto jistě ani $ pat1[0,\dots,i - 1] $ není prefixem $ str $, nebo $ IL[i - 1][0] = true $ a $ pat1[0,\dots,i - 1] $ bude prefixem $ str $ právě když i aktuální znak bude odpovídat znaku v $ str $, tedy právě když $ pat1[i-1] = str[i-1] $. Analogickou argumentaci použijeme pro $ IL[0][i] $ a $ pat2 $.
+
+\end{document}
