@@ -93,7 +93,7 @@ function is_interleave(str, pat1, pat2)
     return true
     
   s := $|str| + 1$
-  IL := array of size $ s \times s $, all entries set $\textit{to}$ false
+  IL := anti-upper-triangular matrix of size $ s \times s $, all entries set $\textit{to}$ false
   IL[0][0] := true
   
   for $ 1 \leq i < s $
@@ -115,9 +115,22 @@ Vyšetříme korektnost uvedeného algoritmu. Z omezené délky všecy cyklů a 
 
 Dále postupujme postupně a zkoumejme jednotlivé větve algoritmu. Pokud jsou oba vzory $ pat1 $ i $ pat2 $ prázdné řetězce, bude $ str $ jejich spojením jen pokud je sám také prázdný řetězec. Dále předpokládáme, že $ pat1 $ je neprázdný (pokud by byl náhodou prázdný, provedeme na řádku 5 swap a z podmínky na řádku 2 plyne, že poté musí být neprázdný). Nyní pokud je $ pat2 $ prázdný, bude $ str $ spojením vstupních vzorů jen pokud se jedná o repetici $ pat1 $. Přesně to vyšetří řádky 7-10. 
 
-Zbývá vyšetřit případ, kdy $ |pat1| \neq 0$ a $ |pat2| \neq 0 $. Tuto situaci řeší řádky 12-28. Pro pole $ IL $ dokážeme, že po tom, co navštívíme prvek $ IL[i][j] $ (na řádku 14, 17, 18 nebo 23), tak bude platit $ IL[i][j] = true \Leftrightarrow (str[0,\dots, i + j - 1]$ je prolnutím $ pat1[0,\dots,i - 1] $ a $ pat2[0,\dots,j - 1] $). Poznamenejme, že prolnutím míníme to stejné co spojením, pouze však pro řetězce konkrétní délky, bez opakování a výrazem $ pat1[0,\dots,i - 1] $ rozumíme repetici $ pat1 $ vhodné délky. Analogicky pro $ pat2 $. 
+Zbývá vyšetřit případ, kdy $ |pat1| \neq 0$ a $ |pat2| \neq 0 $. Tuto situaci řeší řádky 12-28. Pro pole $ IL $ dokážeme, že po tom, co navštívíme prvek $ IL[i][j] $ (na řádku 14, 17, 18 nebo 23), tak bude platit 
+
+\begin{align}\label{eqv}
+IL[i][j] = true \Leftrightarrow str[0,\dots, i + j - 1] \text{ je prolnutím } pat1[0,\dots,i - 1] \text{ a } pat2[0,\dots,j - 1].
+\end{align}
+
+ Poznamenejme, že prolnutím míníme to stejné co spojením, pouze však pro řetězce konkrétní délky, bez opakování a výrazem $ pat1[0,\dots,i - 1] $ rozumíme repetici $ pat1 $ vhodné délky. Analogicky pro $ pat2 $. 
 Je zřejmé, že uvedený algoritmus každý prvek $ IL[i][j] $ nastaví právě jednou a také je zřejmé, ve které části algoritmu a ve které iteraci k tomu dojde. Vyšetřeme tedy postupně jednotlivé prvky.
 
 Pro $ IL[0][0] $ tvrzení zřejmě platí, neboť prázdný řetězec je repeticí spojením prázdných řetězců. Prvky $ IL[i][0] $ popisují situaci, kdy $ str $ je spojením prázdného řetězce a $ pat1 $. Naše ekvivalence se pro tento případ dá snadno dokázat indukcí díky tomu, že buďto je $ IL[i - 1][0] = false $ a proto jistě ani $ pat1[0,\dots,i - 1] $ není prefixem $ str $, nebo $ IL[i - 1][0] = true $ a $ pat1[0,\dots,i - 1] $ bude prefixem $ str $ právě když i aktuální znak bude odpovídat znaku v $ str $, tedy právě když $ pat1[i-1] = str[i-1] $. Analogickou argumentaci použijeme pro $ IL[0][i] $ a $ pat2 $.
+
+Konečně pro $ 0 < i,j \leq |str| $, $ i + j < |str| $, tedy pro prvky po vedlejší diagonálu, bude $ str[0,\dots, i + j - 1]$ prolnutím $ pat1[0,\dots,i - 1] $ a $ pat2[0,\dots,j - 1] $, právě když to bylo prolnutí pro $ str $ a $ pat2 $ a $ pat1 $ o jedno kratší a navíc nyní platí $ pat1[i-1] = c $, nebo $ str $ bylo prolnutí $ pat1 $ a $ pat2 $ o jedno kratší a $ pat2[j-1] = c $. Vzhledem k tomu, že můžeme snadno nahlédnout, že každý prvek $ I[i][j] $ navštívíme dříve, než jej budeme potřebovat na pravé straně některého z výrazů, je tvrzení díky předešlé argumentaci dokázáno.
+
+Nakonec z \eqref{eqv} vyplývá, že $ str $ bude spojením $ pat1 $ a $ pat2 $ právě když na vedlejší diagonále $ IL $ bude alespoň jedna hodnota $ true $. Ověření této skutečnosti je obsahem řádků 25-28 a důkaz korektnosti je hotov.
+
+
+Složitost algoritmu bude zřejmě náležet do $\mathcal{O}(|str|^2)$.
 
 \end{document}
