@@ -1,0 +1,137 @@
+\documentclass[12pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[czech]{babel}
+\usepackage{a4wide}
+\usepackage{amsmath, amsthm, amsfonts, amssymb, graphicx, url, fancyhdr,multicol,enumerate,titling}
+\usepackage{algpseudocode}
+\usepackage[]{algorithm2e}
+\usepackage{listings}
+\theoremstyle{plain}
+\newtheorem{thm}{Theorem} %[section]
+\newtheorem{lemma}[thm]{Lemma}
+
+\lstdefinelanguage{algpseudocode}{
+  keywordstyle=[1]{\keywordstyle},
+  keywordstyle=[2]{\operatorstyle},
+  keywordstyle=[3]{\typestyle},
+  keywordstyle=[4]{\functionstyle},
+  identifierstyle={\identifierstyle},
+  keywords=[1]{%
+    begin,end,%
+    program,procedure,function,subroutine,%
+    while,do,for,to,next,repeat,until,loop,continue,endwhile,endfor,endloop,%
+    if,then,else,endif,%
+    return},
+  literate={-}{$-$}1 {^}{$^\wedge$}1
+           {>}{{$>$\ }}1 {<}{{$<$\ }}1
+           {>=}{{$\geqslant$\ }}1 {<=}{{$\leqslant$\ }}1
+           {:=}{{$\gets$\ }}1 {!=}{{$\ne$\ }}1 {<>}{{$\ne$\ }}1
+           {->}{{$\;\to\;$}}1
+           {&&}{{\keywordstyle and\ }}4 {{||}}{{\keywordstyle or\ }}3
+           {;}{\hspace{0.2em};}2 {,}{\hspace{0.2em},}2,
+}
+
+\lstset{%
+  language={algpseudocode},
+  columns=fullflexible,
+  numbers=left,
+  numberstyle=\scriptsize,
+}
+
+\newcommand\keywordstyle{\rmfamily\bfseries\upshape}
+\newcommand\operatorstyle{\rmfamily\mdseries\upshape}
+\newcommand\typestyle{\rmfamily\mdseries\upshape}
+\newcommand\functionstyle{\rmfamily\mdseries\scshape}
+
+\newcommand\identifierstyle{\rmfamily\mdseries\itshape}
+
+\newcommand\addkeywords[1]{%
+  \lstset{morekeywords=[1]{#1}}}
+
+\newcommand\addoperators[1]{%
+  \lstset{morekeywords=[2]{#1}}}
+
+\newcommand\addtypes[1]{%
+  \lstset{morekeywords=[3]{#1}}}
+
+\newcommand\addfunctions[1]{%
+  \lstset{morekeywords=[4]{#1}}}
+
+\newcommand{\Z}{\mathbb{Z}}
+\newcommand{\N}{\mathbb{N}}
+\newcommand{\It}{\operatorname{It}}
+\newcommand{\ord}{\operatorname{ord}}
+
+\begin{document}
+\pagestyle{fancy}                      %Pro větší­ možnosti práce se záhlaví­mi a zápatími
+\fancyhf{}                             %"vyčištění záhlaví a zápatí"
+%\renewcommand{\headheight}{25 pt}                  %
+\addtolength{\topmargin}{-30 pt}                   %
+\setlength{\headsep}{10 pt}                      %
+\fancyhead[L]{{\emph{IV003 - sada 3, příklad 4}}}  %
+\fancyhead[R]{{\emph{Jan Plhák (UČO 408420), Vladimír Sedláček (UČO 408178)}}}                  % Nastavení­ pro titulní­ stranu
+%\fancyfoot[L]{Školní rok 2009/2010}                %
+%\renewcommand{\footrulewidth}{0.8 pt}              %
+\renewcommand{\headrulewidth}{1 pt}                %               %
+
+\addfunctions{EXTRACT\_MIN}
+\addfunctions{INSERT}
+\addfunctions{PUSH}
+\addfunctions{POP}
+
+Pro vyřešení čtvrtého příkladu použijeme modifikaci Jarníkova algoritmu, jehož časová složitost je $\mathcal{O}(|E| + |V|\log |V| )$, přičemž ukážeme, že snadnou modifikací algoritmu můžeme v tomto konkrétním případě odstranit násobek $ \log |V| $. Uvažme následující pseudokód: 
+
+\begin{lstlisting}[mathescape]
+function min_spanning_tree
+    v := arbitrary vertex from $V$
+    $visited$ := array of size $|V|$, all set to false
+    $visited[v]$ := true 
+    Q := {}
+    for $e \in adj[v] $:
+        INSERT$(Q, e)$
+    T := {}
+    while $ Q \neq \emptyset $: 
+        $(s,t,w)$ := EXTRACT_MIN(Q)
+        if $visited[s]$ and $visited[t]$:
+           continue
+        $T = T \cup \{(s,t)\}$
+        
+        if $visited[t]$:
+            $swap(s, t)$
+        for $e \in adj[s] $:
+            INSERT$(Q, e)$
+        visited[t] = true
+    return T
+     
+\end{lstlisting}
+
+Přičemž $ adj[v] $ značí hrany obsahující vrchol $ v $ a $ Q $ je prioritní fronta, která skladuje hrany a řadí je podle jejich váhy. Korektnost algoritmu vyplývá ze skutečnosti, že je zde přesně demonstrován princip Jarníkova algoritmu, tedy, že budujeme modrý strom. V každém cyklu totiž vybereme hranu s nejnižším ohodnocením, která zatím nebyla zpracována a pokrývá alespoň jeden vrchol stromu $ T $. Taková hrana má buď oba konce v $ T $, pak ji ignorujeme neboť by nám taková hrana nic nepřinesla, případně má v $ T $ právě jeden konec a protože se jedná o nejlehčí hranu, musí to být modrá hrana. Proto ji přidáme, tím pokryjeme nový vrchol a do fronty vložíme všechny hrany vycházející z nově přidaného vrcholu, čímž zajistíme korektní pokračování. 
+
+Nyní vyšetřeme složitost uvedeného algoritmu. Na začátku musíme inicializovat pole o velikosti $ V $. Dále můžeme snadno nahlédnout, že operaci INSERT provedeme nejvýše $ 2 * |E| $-krát, neboť každý vrchol navštívíme (projdeme z něj vycházející hrany) právě jednou. To proto, že hranu do $ Q $ přidáváme pouze když do $ T $ přidáváme nový, doposud nepokrytý vrchol. To pro každý konec hrany nastane právě jednou. Celkem tedy dostáváme složitost $ \mathcal{O}(|V| + |E| \Gamma )$, kde $ \Gamma $ vyjadřuje souhrnnou složitost funkcí EXTRACT\_MIN a INSERT. Stačí tedy implementovat frontu $ Q $ tak, aby obě potřebné operace byly konstantní. To se ale díky konečné množině vah dá velmi snadno zařídit pomocí tří zásobníků $ S1, S2, S3 $, pro které implementujeme funkce vložení a extrakce následovně:
+
+\begin{lstlisting}[mathescape]
+function INSERT(Q, (s,t,w)):
+    if $ w = 1 $:
+        PUSH$(Q.S1, (s,t,w)) $
+    else if $ w = 2 $:
+        PUSH$(Q.S2, (s,t,w)) $
+    else 
+        PUSH$(Q.S3, (s,t,w)) $
+     
+\end{lstlisting}
+
+\begin{lstlisting}[mathescape]
+function EXTRACT_MIN(Q):
+    if $|Q.S1| \neq 0 $:
+        return POP$(Q.S1) $
+    else if $|Q.S2| \neq 0 $:
+        return POP$(Q.S2) $
+    else 
+        return POP$(Q.S3) $
+     
+\end{lstlisting}
+
+Takto implementované operace budou zřejmě konstantní a díky tomu, že váhy mohou nabývat pouze hodnot 1, 2 a 3, budou také splňovat očekávané vlastnosti vložení a extrakce minima pro prioritní frontu. Celkem tak získáváme časovou složitost $ \mathcal{O}(|V| + |E|)$ a jsme hotovi.
+
+\end{document}
