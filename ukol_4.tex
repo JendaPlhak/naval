@@ -109,6 +109,8 @@ function min_spanning_tree
 Přičemž $ adj[v] $ značí hrany obsahující vrchol $ v $ a $ Q $ je prioritní fronta, která skladuje hrany a řadí je podle jejich váhy. Korektnost algoritmu vyplývá ze skutečnosti, že je zde přesně demonstrován princip Jarníkova algoritmu, tedy, že budujeme modrý strom. V každém cyklu totiž vybereme hranu s nejnižším ohodnocením, která zatím nebyla zpracována a pokrývá alespoň jeden vrchol stromu $ T $. Taková hrana má buď oba konce v $ T $, pak ji ignorujeme neboť by nám taková hrana nic nepřinesla, případně má v $ T $ právě jeden konec a protože se jedná o nejlehčí hranu, musí to být modrá hrana. Proto ji přidáme, tím pokryjeme nový vrchol a do fronty vložíme všechny hrany vycházející z nově přidaného vrcholu, čímž zajistíme korektní pokračování. 
 
 Nyní vyšetřeme složitost uvedeného algoritmu. Na začátku musíme inicializovat pole o velikosti $ V $. Dále můžeme snadno nahlédnout, že operaci INSERT provedeme nejvýše $ 2 * |E| $-krát, neboť každý vrchol navštívíme (projdeme z něj vycházející hrany) právě jednou. To proto, že hranu do $ Q $ přidáváme pouze když do $ T $ přidáváme nový, doposud nepokrytý vrchol. To pro každý konec hrany nastane právě jednou. Celkem tedy dostáváme složitost $ \mathcal{O}(|V| + |E| \Gamma )$, kde $ \Gamma $ vyjadřuje souhrnnou složitost funkcí EXTRACT\_MIN a INSERT. Stačí tedy implementovat frontu $ Q $ tak, aby obě potřebné operace byly konstantní. To se ale díky konečné množině vah dá velmi snadno zařídit pomocí tří zásobníků $ S1, S2, S3 $, pro které implementujeme funkce vložení a extrakce následovně:
+\newpage
+
 
 \begin{lstlisting}[mathescape]
 function INSERT(Q, (s,t,w)):

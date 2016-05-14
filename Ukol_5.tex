@@ -1,0 +1,89 @@
+\documentclass[12pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[czech]{babel}
+\usepackage{a4wide}
+\usepackage{amsmath, amsthm, amsfonts, amssymb, graphicx, url, fancyhdr,multicol,enumerate,titling}
+\usepackage{algpseudocode}
+\usepackage[]{algorithm2e}
+\usepackage{listings}
+\theoremstyle{plain}
+\newtheorem{thm}{Theorem} %[section]
+\newtheorem{lemma}[thm]{Lemma}
+
+\lstdefinelanguage{algpseudocode}{
+  keywordstyle=[1]{\keywordstyle},
+  keywordstyle=[2]{\operatorstyle},
+  keywordstyle=[3]{\typestyle},
+  keywordstyle=[4]{\functionstyle},
+  identifierstyle={\identifierstyle},
+  keywords=[1]{%
+    begin,end,%
+    program,procedure,function,subroutine,%
+    while,do,for,to,next,repeat,until,loop,continue,endwhile,endfor,endloop,%
+    if,then,else,endif,%
+    return},
+  literate={-}{$-$}1 {^}{$^\wedge$}1
+           {>}{{$>$\ }}1 {<}{{$<$\ }}1
+           {>=}{{$\geqslant$\ }}1 {<=}{{$\leqslant$\ }}1
+           {:=}{{$\gets$\ }}1 {!=}{{$\ne$\ }}1 {<>}{{$\ne$\ }}1
+           {->}{{$\;\to\;$}}1
+           {&&}{{\keywordstyle and\ }}4 {{||}}{{\keywordstyle or\ }}3
+           {;}{\hspace{0.2em};}2 {,}{\hspace{0.2em},}2,
+}
+
+\lstset{%
+  language={algpseudocode},
+  columns=fullflexible,
+  numbers=left,
+  numberstyle=\scriptsize,
+}
+
+\newcommand\keywordstyle{\rmfamily\bfseries\upshape}
+\newcommand\operatorstyle{\rmfamily\mdseries\upshape}
+\newcommand\typestyle{\rmfamily\mdseries\upshape}
+\newcommand\functionstyle{\rmfamily\mdseries\scshape}
+
+\newcommand\identifierstyle{\rmfamily\mdseries\itshape}
+
+\newcommand\addkeywords[1]{%
+  \lstset{morekeywords=[1]{#1}}}
+
+\newcommand\addoperators[1]{%
+  \lstset{morekeywords=[2]{#1}}}
+
+\newcommand\addtypes[1]{%
+  \lstset{morekeywords=[3]{#1}}}
+
+\newcommand\addfunctions[1]{%
+  \lstset{morekeywords=[4]{#1}}}
+
+\newcommand{\Z}{\mathbb{Z}}
+\newcommand{\N}{\mathbb{N}}
+
+\begin{document}
+\pagestyle{fancy}                      %Pro větší­ možnosti práce se záhlaví­mi a zápatími
+\fancyhf{}                             %"vyčištění záhlaví a zápatí"
+%\renewcommand{\headheight}{25 pt}                  %
+\addtolength{\topmargin}{-30 pt}                   %
+\setlength{\headsep}{10 pt}                      %
+\fancyhead[L]{{\emph{IV003 - sada 3, příklad 5}}}  %
+\fancyhead[R]{{\emph{Jan Plhák (UČO 408420), Vladimír Sedláček (UČO 408178)}}}                  % Nastavení­ pro titulní­ stranu
+%\fancyfoot[L]{Školní rok 2009/2010}                %
+%\renewcommand{\footrulewidth}{0.8 pt}              %
+\renewcommand{\headrulewidth}{1 pt}                %               %
+
+\begin{enumerate}[1.]
+\item Uvažme orientovaný graf s $n+1$ vrcholy, ve kterém $n$ vrcholů odpovídá povinným předmětům a hrana z $u$ do $v$ vede právě tehdy, když $u$ je prerekvizitou pro zápis $v$. Poslední vrchol nazveme $s$ a povede z něj hrana do všech ostatních vrcholů. Žádné další hrany v grafu nebudou. Je jasné, že mezi předměty je cyklická závislost, právě když náš graf obsahuje cyklus. Pokud náš graf žádný cyklus neobsahuje, je minimální počet semestrů potřebný na absolvování všech povinných kurzů roven délce $d$ nejdelší (jednoduché) cesty v našem grafu začínající ve vrcholu $s$ (kde délkou cesty rozumíme počet jejích hran), neboť absolvování předmětů na této nejdelší cestě určitě zabere alespoň $d$ semestrů (daných $d$ hran spojuje $d+1$ vrcholů, přičemž kromě $s$ všechny odpovídají předmětům), a naopak díky tomu, že neexistuje cesta z $s$ delší než $d$, lze za $d$ semestrů zvládnout všechny předměty (pokud si student vždy zapíše vše, co může - není žádný limit).\\
+Uvažme proto DFS spuštěné z vrcholu $s$. Pokud graf obsahuje nějaký cyklus, $DFS$ ho najde a jsme hotovi. V opačném případě získáme topologické uspořádání, takže můžeme všem hranám přiřadit váhu $-1$ a použít Bellman-Fordův algoritmus pro hledání nejkratších cest. Díky zápornosti hran tak bude mít nalezená nejkratší cesta délku $-d$, což řeší náš problém. Protože DFS i Bellman-Ford (díky acykličnosti grafu) mají kvadratickou složitost vůči počtu vrcholů, jsme hotovi.
+
+\item Uvažme síť se zdrojem $s$, cílem $t$, $m$ vrcholy odpovídajícími profesorům a $n$ vrcholy odpovídajícími předmětům, přičemž hrany povedou právě z $s$ do všech vrcholů odpovídajícím profesorům, ze všech vrcholů odpovídajícím předmětům do $t$, a konečně z každého vrcholu odpovídajícímu profesorovi do oněch dvou vrcholů odpovídajícím předmětům, které může připravit. Všechny tyto hrany budou mít kapacitu 1.\par
+Nyní si všimněme, že každý maximální tok v této síti odpovídá takovému rozvržení předmětů, že se jich uskuteční co nejvíce (neboť předmět se uskuteční, právě když do něj něco přiteče od nějakého profesora, a v tom případě přispívá k maximálnímu toku hodnotou 1), a žádný profesor nebude mít více než jednu přednášku (neboť skrz něj protéká nejvýše jedna jednotka toku, kterou nemůže rozdělit). Navíc žádný předmět nebude vyučován více než jedním profesorem, což můžeme BÚNO předpokládat. K vyřešení problému proto stačí zvolit libovolný algoritmus pro nalezení maximálního toku a posléze hrany mezi profesory a předměty v maximálním toku interpretovat jako relaci vyučování.
+
+\item Uvažme síť se zdrojem $s$, cílem $t$, $n$ vrcholy odpovídajícími rodinám a $m$ vrcholy odpovídajícími stolům, přičemž pro $1\leq i\leq n$ povede z $s$ do vrcholu odpovídajícího $i$-té rodině hrana s kapacitou $a_i$, pro $1\leq j\leq m$ povede z do vrcholu odpovídajícího $j$-tému stolu do $t$ hrana s kapacitou $c_i$, a z každého vrcholu odpovídajícího rodině povede do každého vrcholu odpovídajícího stolu hrana s kapacitou 1 (a žádné další hrany v síti nebudou).\par
+Nyní si všimněme, že každý maximální tok v této síti odpovídá maximálnímu rozesazení splňujícímu podmínky, neboť kapacity hran z $s$ do rodin zaručují, že z každé rodiny rozesadíme nejvýše tolik osob, kolik jich obsahuje (přičemž součet počtů těchto rozesazených osob právě potřebujeme maximalizovat), jednotkové kapacity mezi rodinami a stoly zaručují, že u žádného stolu nebudou sedět dva členové stejné rodiny, a kapacity mezi stoly a $t$ zaručují, že u žádného stolu nebude sedět více osob, než je u něj míst k sezení. K vyřešení problému proto stačí zvolit libovolný algoritmus pro nalezení maximálního toku a posléze hrany mezi rodinami a stoly v maximálním toku interpretovat jako relaci sezení některého člena dané rodiny u daného stolu.
+
+\item Uvažme graf, ve kterém vrcholy odpovídají křižovatkám a hrany ulicím, přičemž vrchol $A$ bude odpovídat domu profesorky Černé a vrchol $B$ škole. Každé hraně navíc přiřadíme váhu 1. Pak se vlastně ptáme, zda existují alespoň dvě hranově disjunktní (jednoduché) cesty z $A$ do $B$, což je zřejmě ekvivalentní tomu, že $A$ i $B$ leží ve stejné komponentě souvislosti a na cestě z $A$ do $B$ neleží žádné mosty. Přitom každý most v této komponentě zřejmě musí ležet v minimální kostře této komponenty. Můžeme proto použít např. Jarníkův algoritmus spuštěný z vrcholu $A$, který najde minimální kostru příslušné komponenty. Pokud $B$ neleží v této kostře, je odpověď na naši otázku záporná. V opačném případě je díky pozorování výše odpověď kladná, právě když na (jediné) cestě $p$ z $A$ do $B$ ležící v této kostře nejsou žádné mosty. To lze snadno otestovat tak, že postupně vždy odstraníme jednu z hran $p$ a zkusíme, zda nyní $A$ a $B$ budou opět ležet ve stejné komponentě souvislosti (například opět Jarníkovým algoritmem), přičemž na konci hranu opět přidáme. Tím je problém vyřešen.
+\end{enumerate}
+
+\end{document}

@@ -1,0 +1,110 @@
+\documentclass[12pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[czech]{babel}
+\usepackage{a4wide}
+\usepackage{amsmath, amsthm, amsfonts, amssymb, graphicx, url, fancyhdr,multicol,enumerate,titling, tikz}
+\usetikzlibrary {positioning}
+%\usepackage {xcolor}
+\definecolor {processblue}{cmyk}{0.96,0,0,0}
+\usetikzlibrary{arrows}
+\usepackage{algpseudocode}
+\usepackage[]{algorithm2e}
+\usepackage{listings}
+\theoremstyle{plain}
+\newtheorem{thm}{Theorem} %[section]
+\newtheorem{lemma}[thm]{Lemma}
+
+\lstdefinelanguage{algpseudocode}{
+  keywordstyle=[1]{\keywordstyle},
+  keywordstyle=[2]{\operatorstyle},
+  keywordstyle=[3]{\typestyle},
+  keywordstyle=[4]{\functionstyle},
+  identifierstyle={\identifierstyle},
+  keywords=[1]{%
+    begin,end,%
+    program,procedure,function,subroutine,%
+    while,do,for,to,next,repeat,until,loop,continue,endwhile,endfor,endloop,%
+    if,then,else,endif,%
+    return},
+  literate={-}{$-$}1 {^}{$^\wedge$}1
+           {>}{{$>$\ }}1 {<}{{$<$\ }}1
+           {>=}{{$\geqslant$\ }}1 {<=}{{$\leqslant$\ }}1
+           {:=}{{$\gets$\ }}1 {!=}{{$\ne$\ }}1 {<>}{{$\ne$\ }}1
+           {->}{{$\;\to\;$}}1
+           {&&}{{\keywordstyle and\ }}4 {{||}}{{\keywordstyle or\ }}3
+           {;}{\hspace{0.2em};}2 {,}{\hspace{0.2em},}2,
+}
+
+\lstset{%
+  language={algpseudocode},
+  columns=fullflexible,
+  numbers=left,
+  numberstyle=\scriptsize,
+}
+
+\newcommand\keywordstyle{\rmfamily\bfseries\upshape}
+\newcommand\operatorstyle{\rmfamily\mdseries\upshape}
+\newcommand\typestyle{\rmfamily\mdseries\upshape}
+\newcommand\functionstyle{\rmfamily\mdseries\scshape}
+
+\newcommand\identifierstyle{\rmfamily\mdseries\itshape}
+
+\newcommand\addkeywords[1]{%
+  \lstset{morekeywords=[1]{#1}}}
+
+\newcommand\addoperators[1]{%
+  \lstset{morekeywords=[2]{#1}}}
+
+\newcommand\addtypes[1]{%
+  \lstset{morekeywords=[3]{#1}}}
+
+\newcommand\addfunctions[1]{%
+  \lstset{morekeywords=[4]{#1}}}
+
+\newcommand{\Z}{\mathbb{Z}}
+\newcommand{\N}{\mathbb{N}}
+
+\begin{document}
+\pagestyle{fancy}                      %Pro větší­ možnosti práce se záhlaví­mi a zápatími
+\fancyhf{}                             %"vyčištění záhlaví a zápatí"
+%\renewcommand{\headheight}{25 pt}                  %
+\addtolength{\topmargin}{-30 pt}                   %
+\setlength{\headsep}{10 pt}                      %
+\fancyhead[L]{{\emph{IV003 - sada 3, příklad 2}}}  %
+\fancyhead[R]{{\emph{Jan Plhák (UČO 408420), Vladimír Sedláček (UČO 408178)}}}                  % Nastavení­ pro titulní­ stranu
+%\fancyfoot[L]{Školní rok 2009/2010}                %
+%\renewcommand{\footrulewidth}{0.8 pt}              %
+\renewcommand{\headrulewidth}{1 pt}                %               %
+
+\begin{enumerate}[1.]
+\item
+Tvrzení platí. Uvažme libovolný minimální řez $G$, jeho kapacita je rovna hodnotě maximálního toku, která je kladná. Tato kapacita je současně součtem nezáporných kapacit všech hran daného řezu, takže kapacita alespoň jedné z těchto hran musí být také kladná. Po jejím odstranění se hodnota minimálního řezu sníží, takže se sníží i hodnota maximálního toku.\qed
+    
+\item 
+Tvrzení neplatí. Uvažme následující protipříklad:
+\begin {center}
+    \begin {tikzpicture}[-latex ,auto ,node distance =3 cm and 4cm ,on grid ,
+    semithick ,
+    state/.style ={ circle ,top color =white , bottom color = processblue!20 ,
+    draw,processblue , text=blue , minimum width =1 cm}]
+    \node[state] (D)
+    {$w$};
+    \node[state] (A) [above left=of D] {$s$};
+    \node[state] (C) [above right =of D] {$v$};
+    \node[state] (B) [above right =of A] {$u$};
+    \node[state] (E) [ right =of C] {$t$};
+
+    \path (A) edge [bend right = 0] node[below =0.15 cm] {$1/1$} (D);
+    \path (A) edge [bend left =0] node[above] {$1/1$} (B);
+    \path (B) edge [bend right = -0] node[above =0.15 cm] {$1/1$} (C);
+    \path (D) edge [bend left =0] node[below =0.15 cm] {$1/1$} (C);
+    \path (C) edge [bend left =0] node[below =0.15 cm] {$2/10$} (E);
+    \end{tikzpicture}
+\end{center}
+Znázorněný tok je zřejmě maximální a má hodnotu $2$. Přitom po odstranění libovolné z hran $(s,u),(s,w),(u,v),(w,v)$ se jeho hodnota sníží o jedna a při odstranění hrany $(v,t)$ se jeho hodnota sníží o dva, proto je hrana $(v,t)$ nejdůležitější hranou této sítě. Minimálním řezem je však například dvojice hran $((s,u),(s,w))$ (případně také $((s,u),(w,v))$ nebo $((u,v),(s,w))$ nebo $((u,v),(w,v))$), takže hrana, která má v minimálním řezu nejvyšší kapacitu, je některá ze hran s kapacitou $1$, tedy nikoli hrana $(v,t)$, která je nejdůležitější hranou této sítě.\\
+(Pokud by vadilo, že po odstranění hrany $(v,t)$ bude graf nespojitý, mohli bychom tento protipříklad modifikovat přidáním hrany $(s,t)$ s kapacitou $\frac{1}{2}$ a argumentovat zcela analogicky).
+\qed
+\end{enumerate}
+
+\end{document}
