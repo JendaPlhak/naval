@@ -1,0 +1,143 @@
+\documentclass[12pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[czech]{babel}
+\usepackage{a4wide}
+\usepackage{amsmath, amsthm, amsfonts, amssymb, graphicx, url, fancyhdr,multicol,enumerate,titling}
+\usepackage{algpseudocode}
+\usepackage[]{algorithm2e}
+\usepackage{listings}
+\theoremstyle{plain}
+\newtheorem{thm}{Theorem} %[section]
+\newtheorem{lemma}[thm]{Lemma}
+
+\lstdefinelanguage{algpseudocode}{
+  keywordstyle=[1]{\keywordstyle},
+  keywordstyle=[2]{\operatorstyle},
+  keywordstyle=[3]{\typestyle},
+  keywordstyle=[4]{\functionstyle},
+  identifierstyle={\identifierstyle},
+  keywords=[1]{%
+    begin,end,%
+    program,procedure,function,subroutine,%
+    while,do,for,to,next,repeat,until,loop,continue,endwhile,endfor,endloop,%
+    if,then,else,endif,%
+    return},
+  literate={-}{$-$}1 {^}{$^\wedge$}1
+           {>}{{$>$\ }}1 {<}{{$<$\ }}1
+           {>=}{{$\geqslant$\ }}1 {<=}{{$\leqslant$\ }}1
+           {:=}{{$\gets$\ }}1 {!=}{{$\ne$\ }}1 {<>}{{$\ne$\ }}1
+           {->}{{$\;\to\;$}}1
+           {&&}{{\keywordstyle and\ }}4 {{||}}{{\keywordstyle or\ }}3
+           {;}{\hspace{0.2em};}2 {,}{\hspace{0.2em},}2,
+}
+
+\lstset{%
+  language={algpseudocode},
+  columns=fullflexible,
+  numbers=left,
+  numberstyle=\scriptsize,
+}
+
+\newcommand\keywordstyle{\rmfamily\bfseries\upshape}
+\newcommand\operatorstyle{\rmfamily\mdseries\upshape}
+\newcommand\typestyle{\rmfamily\mdseries\upshape}
+\newcommand\functionstyle{\rmfamily\mdseries\scshape}
+
+\newcommand\identifierstyle{\rmfamily\mdseries\itshape}
+
+\newcommand\addkeywords[1]{%
+  \lstset{morekeywords=[1]{#1}}}
+
+\newcommand\addoperators[1]{%
+  \lstset{morekeywords=[2]{#1}}}
+
+\newcommand\addtypes[1]{%
+  \lstset{morekeywords=[3]{#1}}}
+
+\newcommand\addfunctions[1]{%
+  \lstset{morekeywords=[4]{#1}}}
+
+\newcommand{\Z}{\mathbb{Z}}
+\newcommand{\N}{\mathbb{N}}
+\newcommand{\It}{\operatorname{It}}
+\newcommand{\ord}{\operatorname{ord}}
+
+\begin{document}
+\pagestyle{fancy}                      %Pro větší­ možnosti práce se záhlaví­mi a zápatími
+\fancyhf{}                             %"vyčištění záhlaví a zápatí"
+%\renewcommand{\headheight}{25 pt}                  %
+\addtolength{\topmargin}{-30 pt}                   %
+\setlength{\headsep}{10 pt}                      %
+\fancyhead[L]{{\emph{IV003 - sada 3, příklad 1}}}  %
+\fancyhead[R]{{\emph{Jan Plhák (UČO 408420), Vladimír Sedláček (UČO 408178)}}}                  % Nastavení­ pro titulní­ stranu
+%\fancyfoot[L]{Školní rok 2009/2010}                %
+%\renewcommand{\footrulewidth}{0.8 pt}              %
+\renewcommand{\headrulewidth}{1 pt}                %               %
+
+\addfunctions{PATHS}
+\addfunctions{INSERT}
+\addfunctions{PUSH}
+\addfunctions{POP}
+
+\begin{enumerate}[1.]
+\item
+Pro řešení prvního podproblému použijeme modifikované BFS prohledávání. 
+
+\begin{lstlisting}[mathescape]
+function PATHS(G, u, v)
+    $visited$ := array of size $|V|$, all set to false
+    $inserted$ := array of size $|V|$, all set to false
+    $variants$ := array of size $|V|$, all set to 0
+
+    $visited[u]$ := true 
+    $inserted[u]$ := true 
+    $variants[u]$ := 1
+    
+    level_nodes := {u}
+    while true:
+        next_lvl := {}
+        while $ level\_nodes \neq \emptyset $: 
+            t := POP(level_nodes)        
+            for $ s \in neighbors[t] $:
+                if $visited[s]$:
+                    continue
+                variants[s] := variants[s] + variants[t]
+                if not inserted[s]:
+                    PUSH(next_lvl, s)
+                    inserted[s] := true 
+        level_nodes := next_lvl
+        if $ level\_nodes = \emptyset $:
+            return 0
+        else if $ visited[v] $:
+            return $variants[v]$
+
+     
+\end{lstlisting}
+
+Algoritmus bude vždy konečný neboť v každém cyklu vnitřní smyčky vždy buďto vrchol přidáme a namarkujeme jej jako přidaný, případně přeskočíme, pokud už byl přidán. Vrcholů máme konečně mnoho a proto po konečném počtku kroků bude pro všechny platit $ inserted[s] = true $, do level\_nodes nebude nic přidáno a skončíme. Případně skončíme dříve pokud navštívíme cílový vrchol.
+
+K důkazu korektnosti tak bude stačit dokázat invariant vnitřního while cyklu - pro každý již navštívený uzel $ s \in V $ ($visited[s] = true $) je hodnota v $ variants[s] $ rovna počtu nejkratších různých cest z $ u $ do $ s $. Na začátku bude tato podmínka zřejmě splněna neboť z $ u $ do $ u $ vede jediná - prázdná - cesta. Nyní uvažme, že jsme v daném cyklu navštívili nějaký uzel $ s $. Pak ale z vlastností BFS plyne, že počet všech možných nejkratších cest z $ u $ do $ s $ bude roven součtu možností kolika jsme se mohli dostat postupně do vrcholů, které již byly navštíveny v minulém kole a ze kterých vede hrana do vrcholu $ s $. To je ale přesně obsahem řádků 13 - 21. Z tohoto již vyplývá korektnost neboť buďto vrátíme 0, to v případě, kdy žádná cesta mezi $ u $ a $ v $ neexistuje, případně podle uvedeného invariantu vrátíme počet všech možných cest.
+
+
+Vzhledem k tomu, že se v jádru uvedeného alogirtmu jedná o BFS prohleádávní a všechny operace navíc - naše úpravy - jsou konstantní, bude výsledná složitost v $ \mathcal{O}(|V| + |E|)$.
+
+\item
+Druhou úlohu můžeme vyřešit pomocí Dijkstrova algoritmu tak, že si pro každý vrchol budeme vedle nejmenší vzdáleonsti pamatovat také počet cest, kterými jsme této vzdálenosti mohli dosáhnout. Tento počet bude všude iniciálně nastaven na nulu výjma výchozí uzel $ u $, kde počet cest nastavíme na 1. Pak při každé relaxaci hrany nastane jedna ze tří možností
+\begin{enumerate}
+\item Cílový vrchol relaxované hrany vylepšíme. V tom případě nastavíme počet cest na stejnou hodnotu jako ve výchozím vrcholu relaxované hrany.
+\item Cílový vrchol má stejnou vzdálenost jakou bychom dostali za použití relaxované hrany. Pak k počtu možných cest přičteme hodnotu ve výchozím vrcholu relaxované hrany
+\item Vzdálenost by byla horší, neděláme nic.
+\end{enumerate}
+Nakonec vrátíme počet cest uložených u vrcholu $ v $.
+
+Složitost algoritmu bude totožná se složitostí Dijkstrova algoritmu, tedy $ \mathcal{O}(|V|\log|V| + |E|)$. 
+
+Že bude algoritmus korektní můžeme odvodit pomocí podobné argumentace jako v případě důkazu korektnosti Dijkstrova algoritmu. Pokud při relaxaci hrany vylepšíme vzdálenost cílového vrcholu relaxované hrany, pak jistě bude počet možných cest do tohoto vrcholu nejméně roven počtu možných cest do výchozího vrcholu relaxované hrany a všechny doposud nalezené cesty do cílového vrcholu zahazujeme, neboť jsou delší a k počtu nejkratších cest tak nemohou přispět. 
+
+Pokud dojde k rovnosti vzdáleností, jedná se zřejmě o hranu, kterou využívají nějaké alternativní nejkratší cesty vedoucí do daného vrcholu. Počet takových cest jsme si poznamenali u výchozícho vrcholu a tak jejich počet prostě přičteme k již stávajícímu počtu. Na konci tak budeme u cílového vrcholu mít počet všech nejkratších cest.
+
+\end{enumerate}
+
+
+\end{document}
